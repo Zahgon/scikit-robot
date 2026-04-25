@@ -533,9 +533,9 @@ class JupyterNotebookViewer(object):
     @property
     def is_active(self):
         """bool: Always True for JupyterNotebookViewer."""
-        return True
+        pass
 
     @property
     def has_exit(self):
         """bool: Always False for JupyterNotebookViewer."""
-        return False
+        pass

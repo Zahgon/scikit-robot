@@ -21,38 +21,17 @@ class RoverArmedTycoon(RobotModelFromURDF):
 
     @cached_property
     def default_urdf_path(self):
-        return rover_armed_tycoon_urdfpath()
+        pass
 
     @cached_property
     def arm(self):
         """Arm kinematic chain."""
-        links = [
-            self.tycoon_0_pitch_link,
-            self.tycoon_0_roll_link,
-            self.tycoon_1_pitch_link,
-            self.tycoon_1_roll_link,
-            self.tycoon_2_pitch_link,
-            self.tycoon_2_roll_link,
-            self.tycoon_3_pitch_link,
-            self.tycoon_3_roll_link,
-            self.tycoon_4_pitch_link,
-            self.tycoon_4_roll_link,
-            self.tycoon_5_pitch_link,
-            self.tycoon_5_roll_link,
-            self.tycoon_6_pitch_link,
-            self.tycoon_6_roll_link,
-            self.tycoon_7_pitch_link,
-            self.tycoon_7_roll_link,
-        ]
-        joints = [link.joint for link in links]
-        model = RobotModel(link_list=links, joint_list=joints)
-        model.end_coords = self._arm_end_coords
-        return model
+        pass
 
     @property
     def arm_end_coords(self):
         """End coordinates for arm."""
-        return self._arm_end_coords
+        pass
 
     def reset_pose(self):
         self.init_pose()

@@ -271,33 +271,7 @@ class ROS2RobotInterfaceBase(Node):
             joint.joint_torque = effort
 
     def joint_state_callback(self, msg):
-        self._joint_state_msg = msg
-        if 'name' in self.robot_state:
-            robot_state_names = self.robot_state['name']
-        else:
-            robot_state_names = msg.name
-            self.robot_state['name'] = robot_state_names
-            for key in ['position', 'velocity', 'effort']:
-                self.robot_state[key] = np.zeros(len(robot_state_names))
-            self.robot_state['stamp_list'] = [None for _ in robot_state_names]
-
-        joint_names = msg.name
-        stamp_list = self.robot_state['stamp_list']
-        for key in ['position', 'velocity', 'effort']:
-            joint_data = getattr(msg, key)
-            index = 0
-            if len(joint_names) == len(joint_data):
-                data = self.robot_state[key]
-                for jn in joint_names:
-                    joint_index = robot_state_names.index(jn)
-                    data[joint_index] = joint_data[index]
-                    index += 1
-
-                    if key == 'position':
-                        stamp_list[joint_index] = msg.header.stamp
-        self.robot_state['stamp_list'] = stamp_list
-        self.robot_state['name'] = robot_state_names
-        self.set_robot_state('stamp', msg.header.stamp)
+        pass
 
     def add_controller(self, controller_type, joint_enable_check=True,
                        create_actions=None):
@@ -504,7 +478,7 @@ class ROS2RobotInterfaceBase(Node):
 
     def potentio_vector(self):
         """Returns current robot angle vector, This method uses caced data."""
-        return self.robot.angle_vector()
+        pass
 
     def send_ros_controller(
             self,
@@ -559,14 +533,7 @@ class ROS2RobotInterfaceBase(Node):
 
         # Set up callback to store goal handle when future completes
         def goal_response_callback(future):
-            try:
-                goal_handle = future.result()
-                if goal_handle.accepted:
-                    action._current_goal_handle = goal_handle
-                else:
-                    self.get_logger().warn("Goal was rejected")
-            except Exception as e:
-                self.get_logger().error(f"Error in goal response: {e}")
+            pass
 
         future.add_done_callback(goal_response_callback)
         return future
@@ -679,96 +646,17 @@ class ROS2RobotInterfaceBase(Node):
         list[bool]
             return values are a list of is_interpolating for all controllers.
         """
-        if controller_type:
-            controller_actions = self.controller_table[controller_type]
-        else:
-            controller_actions = self.controller_table[self.controller_type]
-
-        results = []
-        start_time = time.time()
-
-        for action in controller_actions:
-            action_completed = False
-
-            # First, wait for goal to be accepted
-            if hasattr(action, '_current_future') and action._current_future:
-                self.get_logger().info("Waiting for goal to be accepted...")
-
-                # Wait for goal acceptance
-                while not action._current_future.done():
-                    time.sleep(0.01)
-                    if timeout > 0 and (time.time() - start_time) > timeout:
-                        self.get_logger().warn(f"Goal acceptance timed out after {timeout}s")
-                        results.append(True)
-                        action_completed = True
-                        break
-
-                if action_completed:
-                    continue
-
-                # Check if goal was accepted
-                try:
-                    goal_handle = action._current_future.result()
-                    if not goal_handle.accepted:
-                        self.get_logger().warn("Goal was rejected")
-                        results.append(False)
-                        continue
-                except Exception as e:
-                    self.get_logger().error(f"Error getting goal handle: {e}")
-                    results.append(False)
-                    continue
-
-            # Now wait for result
-            result_future = action.get_result_async()
-            if result_future is None:
-                self.get_logger().info("No active goal to wait for")
-                results.append(False)
-                continue
-
-            self.get_logger().info("Waiting for motion to complete...")
-
-            # Wait for the motion to complete
-            while not result_future.done():
-                time.sleep(0.01)  # 10ms polling
-
-                # Check timeout
-                if timeout > 0 and (time.time() - start_time) > timeout:
-                    self.get_logger().warn(f"wait_interpolation timed out after {timeout}s")
-                    results.append(True)  # Still interpolating
-                    action_completed = True
-                    break
-
-            if not action_completed:
-                # Future completed normally
-                try:
-                    result_future.result()
-                    self.get_logger().info("Motion completed successfully")
-                    results.append(False)  # Not interpolating anymore
-                except Exception as e:
-                    self.get_logger().error(f"Error getting result: {e}")
-                    results.append(False)
-
-        return results
+        pass
 
     def is_interpolating(self, controller_type=None):
-        if controller_type:
-            controller_actions = self.controller_table[controller_type]
-        else:
-            controller_actions = self.controller_table[self.controller_type]
-        is_interpolatings = map(
-            lambda action: action.is_interpolating(), controller_actions)
-        return any(list(is_interpolatings))
+        pass
 
     def is_moving(self, controller_type=None):
         """"Check whether the robot is moving due to follow_joint_trajectory.
 
         This is not limited to goals sent from the same instance.
         """
-        if controller_type is None or controller_type == self.controller_type:
-            is_movings = list(self.moving_status.values())
-        else:
-            is_movings = [self.moving_status[controller_type]]
-        return any(is_movings)
+        pass
 
     def angle_vector_duration(self, start_av, end_av, controller_type=None,
                               return_joint_names=False):
@@ -830,19 +718,7 @@ class ROS2RobotInterfaceBase(Node):
         controller_type : str, optional
             Controller type to cancel. If None, cancels all controllers.
         """
-        if controller_type is None:
-            # Cancel all controllers
-            for controller_type_key in self.controller_table:
-                for action in self.controller_table[controller_type_key]:
-                    action.cancel_all_goals()
-        else:
-            # Cancel specific controller
-            if controller_type in self.controller_table:
-                for action in self.controller_table[controller_type]:
-                    action.cancel_all_goals()
-            else:
-                self.get_logger().warn(
-                    f'Controller type {controller_type} not found for cancellation')
+        pass
 
 
 class ControllerActionClient:
@@ -868,20 +744,11 @@ class ControllerActionClient:
         return self._current_goal_handle
 
     def get_result_async(self):
-        if self._current_goal_handle:
-            return self._current_goal_handle.get_result_async()
-        return None
+        pass
 
     def cancel_all_goals(self):
         # Cancel current goal if it exists
-        if self._current_goal_handle:
-            return self._current_goal_handle.cancel_goal_async()
-        else:
-            # No active goal to cancel
-            self.node.get_logger().info("No active goal to cancel")
-            return None
+        pass
 
     def is_interpolating(self):
-        if self._current_goal_handle:
-            return not self._current_goal_handle.accepted
-        return False
+        pass

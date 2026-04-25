@@ -70,9 +70,7 @@ def mesh_simplify_factor(factor):
 
 @contextlib.contextmanager
 def no_mesh_load_mode():
-    _CONFIGURABLE_VALUES["no_mesh_load_mode"] = True
-    yield
-    _CONFIGURABLE_VALUES["no_mesh_load_mode"] = False
+    pass
 
 
 @contextlib.contextmanager
@@ -447,21 +445,7 @@ def configure_origin(value):
     matrix : (4,4) float or None
         The created matrix.
     """
-    if value is None:
-        value = np.eye(4)
-    elif isinstance(value, (list, tuple, np.ndarray)):
-        value = np.asanyarray(value).astype(np.float64)
-        if value.shape == (6,):
-            value = np.eye(4).astype(np.float64)
-            value[:3, 3] = value[:3]
-            roll, pitch, yaw = value[3:]
-            value[:3, :3] = rpy_matrix(yaw, pitch, roll)
-        elif value.shape != (4, 4):
-            raise ValueError('Origin must be specified as a 4x4 '
-                             'homogenous transformation matrix')
-    else:
-        raise TypeError('Invalid type for origin, expect 4x4 matrix')
-    return value
+    pass
 
 
 class URDFType(object):
@@ -768,12 +752,11 @@ class Box(URDFType):
         """(3,) float : The length, width, and height of the box in meters.
 
         """
-        return self._size
+        pass
 
     @size.setter
     def size(self, value):
-        self._size = np.asanyarray(value).astype(np.float64)
-        self._meshes = []
+        pass
 
     @property
     def meshes(self):
@@ -782,11 +765,7 @@ class Box(URDFType):
         list of :class:`~trimesh.base.Trimesh` : The triangular meshes
         that represent this object.
         """
-        if len(self._meshes) == 0:
-            if _CONFIGURABLE_VALUES['no_mesh_load_mode'] is False:
-                trimesh = _lazy_trimesh()
-                self._meshes = [trimesh.creation.box(extents=self.size)]
-        return self._meshes
+        pass
 
     def _to_xml(self, parent, path):
         # Apply scale factor to box size
@@ -829,24 +808,22 @@ class Cylinder(URDFType):
         """float : The radius of the cylinder in meters.
 
         """
-        return self._radius
+        pass
 
     @radius.setter
     def radius(self, value):
-        self._radius = float(value)
-        self._meshes = []
+        pass
 
     @property
     def length(self):
         """float : The length of the cylinder in meters.
 
         """
-        return self._length
+        pass
 
     @length.setter
     def length(self, value):
-        self._length = float(value)
-        self._meshes = []
+        pass
 
     @property
     def meshes(self):
@@ -856,13 +833,7 @@ class Cylinder(URDFType):
         list of :class:`~trimesh.base.Trimesh` : The triangular meshes
         that represent this object.
         """
-        if len(self._meshes) == 0:
-            if _CONFIGURABLE_VALUES['no_mesh_load_mode'] is False:
-                trimesh = _lazy_trimesh()
-                self._meshes = [trimesh.creation.cylinder(
-                    radius=self.radius, height=self.length
-                )]
-        return self._meshes
+        pass
 
     def _to_xml(self, parent, path):
         # Apply scale factor to cylinder dimensions
@@ -903,12 +874,11 @@ class Sphere(URDFType):
         """float : The radius of the sphere in meters.
 
         """
-        return self._radius
+        pass
 
     @radius.setter
     def radius(self, value):
-        self._radius = float(value)
-        self._meshes = []
+        pass
 
     @property
     def meshes(self):
@@ -917,11 +887,7 @@ class Sphere(URDFType):
         list of :class:`~trimesh.base.Trimesh` : The triangular meshes
         that represent this object.
         """
-        if len(self._meshes) == 0:
-            if _CONFIGURABLE_VALUES['no_mesh_load_mode'] is False:
-                trimesh = _lazy_trimesh()
-                self._meshes = [trimesh.creation.icosphere(radius=self.radius)]
-        return self._meshes
+        pass
 
     def _to_xml(self, parent, path):
         # Apply scale factor to sphere radius
@@ -972,24 +938,22 @@ class Mesh(URDFType):
         """str : The path to the mesh file for this object.
 
         """
-        return self._filename
+        pass
 
     @filename.setter
     def filename(self, value):
-        self._filename = value
+        pass
 
     @property
     def scale(self):
         """(3,) float : A scaling for the mesh along its local XYZ axes.
 
         """
-        return self._scale
+        pass
 
     @scale.setter
     def scale(self, value):
-        if value is not None:
-            value = np.asanyarray(value).astype(np.float64)
-        self._scale = value
+        pass
 
     @property
     def meshes(self):
@@ -998,33 +962,11 @@ class Mesh(URDFType):
         list of :class:`~trimesh.base.Trimesh` : The triangular meshes
         that represent this object.
         """
-        return self._meshes
+        pass
 
     @meshes.setter
     def meshes(self, value):
-        if isinstance(value, six.string_types):
-            value = load_meshes(value)
-            self._meshes = value
-            return
-
-        if isinstance(value, (list, tuple, set)):
-            value = list(value)
-            trimesh = None
-            for i, m in enumerate(value):
-                if not hasattr(m, '__module__') or m.__module__ != 'trimesh':
-                    if trimesh is None:
-                        trimesh = _lazy_trimesh()
-                    if not isinstance(m, trimesh.Trimesh):
-                        raise TypeError('Mesh requires a trimesh.Trimesh or a '
-                                        'list of them')
-            self._meshes = value
-            return
-
-        trimesh = _lazy_trimesh()
-        if isinstance(value, trimesh.Trimesh):
-            self._meshes = [value]
-            return
-        raise TypeError('Mesh requires a trimesh.Trimesh')
+        pass
 
     @classmethod
     def _from_xml(cls, node, path):
@@ -1450,26 +1392,22 @@ class Geometry(URDFType):
         """:class:`.Sphere` : Spherical geometry.
 
         """
-        return self._sphere
+        pass
 
     @sphere.setter
     def sphere(self, value):
-        if value is not None and not isinstance(value, Sphere):
-            raise TypeError('Expected Sphere type')
-        self._sphere = value
+        pass
 
     @property
     def mesh(self):
         """:class:`.Mesh` : Mesh geometry.
 
         """
-        return self._mesh
+        pass
 
     @mesh.setter
     def mesh(self, value):
-        if value is not None and not isinstance(value, Mesh):
-            raise TypeError('Expected Mesh type')
-        self._mesh = value
+        pass
 
     @property
     def geometry(self):
@@ -1478,15 +1416,7 @@ class Geometry(URDFType):
         :class:`.Box`, :class:`.Cylinder`, :class:`.Sphere`, or
         :class:`.Mesh` : The valid geometry element.
         """
-        if self.box is not None:
-            return self.box
-        if self.cylinder is not None:
-            return self.cylinder
-        if self.sphere is not None:
-            return self.sphere
-        if self.mesh is not None:
-            return self.mesh
-        return None
+        pass
 
     @property
     def meshes(self):
@@ -1495,10 +1425,7 @@ class Geometry(URDFType):
         list of :class:`~trimesh.base.Trimesh` : The geometry's triangular
         mesh representation(s).
         """
-        geo = self.geometry
-        if geo is None:
-            return []
-        return geo.meshes
+        pass
 
 
 class Texture(URDFType):
@@ -1531,32 +1458,22 @@ class Texture(URDFType):
         """str : Path to the image for this texture.
 
         """
-        return self._filename
+        pass
 
     @filename.setter
     def filename(self, value):
-        self._filename = str(value)
+        pass
 
     @property
     def image(self):
         """:class:`PIL.Image.Image` : The image for this texture.
 
         """
-        return self._image
+        pass
 
     @image.setter
     def image(self, value):
-        if value is None:
-            self._image = None
-            return
-        if isinstance(value, str):
-            value = PIL.Image.open(value)
-        if isinstance(value, np.ndarray):
-            value = PIL.Image.fromarray(value)
-        elif not isinstance(value, PIL.Image.Image):
-            logger.error('Texture only supports numpy arrays '
-                         'or PIL images')
-        self._image = value
+        pass
 
     @classmethod
     def _from_xml(cls, node, path):
@@ -1611,45 +1528,33 @@ class Material(URDFType):
         """str : The name of the material.
 
         """
-        return self._name
+        pass
 
     @name.setter
     def name(self, value):
-        self._name = str(value)
+        pass
 
     @property
     def color(self):
         """(4,) float : The RGBA color of the material, in the range [0,1].
 
         """
-        return self._color
+        pass
 
     @color.setter
     def color(self, value):
-        if value is not None:
-            value = np.asanyarray(value).astype(np.float64)
-            value = np.clip(value, 0.0, 1.0)
-            if value.shape != (4,):
-                raise ValueError('Color must be a (4,) float')
-        self._color = value
+        pass
 
     @property
     def texture(self):
         """:class:`.Texture` : The texture for the material.
 
         """
-        return self._texture
+        pass
 
     @texture.setter
     def texture(self, value):
-        if value is not None:
-            if isinstance(value, six.string_types):
-                image = PIL.Image.open(value)
-                value = Texture(filename=value, image=image)
-            elif not isinstance(value, Texture):
-                raise ValueError('Invalid type for texture -- expect path to '
-                                 'image or Texture')
-        self._texture = value
+        pass
 
     @classmethod
     def _from_xml(cls, node, path):
@@ -1726,37 +1631,33 @@ class Collision(URDFType):
         """:class:`.Geometry` : The geometry of this element.
 
         """
-        return self._geometry
+        pass
 
     @geometry.setter
     def geometry(self, value):
-        if not isinstance(value, Geometry):
-            raise TypeError('Must set geometry with Geometry object')
-        self._geometry = value
+        pass
 
     @property
     def name(self):
         """str : The name of this collision element.
 
         """
-        return self._name
+        pass
 
     @name.setter
     def name(self, value):
-        if value is not None:
-            value = str(value)
-        self._name = value
+        pass
 
     @property
     def origin(self):
         """(4,4) float : The pose of this element relative to the link frame.
 
         """
-        return self._origin
+        pass
 
     @origin.setter
     def origin(self, value):
-        self._origin = configure_origin(value)
+        pass
 
     @classmethod
     def _from_xml(cls, node, path):
@@ -1831,51 +1732,44 @@ class Visual(URDFType):
         """:class:`.Geometry` : The geometry of this element.
 
         """
-        return self._geometry
+        pass
 
     @geometry.setter
     def geometry(self, value):
-        if not isinstance(value, Geometry):
-            raise TypeError('Must set geometry with Geometry object')
-        self._geometry = value
+        pass
 
     @property
     def name(self):
         """str : The name of this visual element.
 
         """
-        return self._name
+        pass
 
     @name.setter
     def name(self, value):
-        if value is not None:
-            value = str(value)
-        self._name = value
+        pass
 
     @property
     def origin(self):
         """(4,4) float : The pose of this element relative to the link frame.
 
         """
-        return self._origin
+        pass
 
     @origin.setter
     def origin(self, value):
-        self._origin = configure_origin(value)
+        pass
 
     @property
     def material(self):
         """:class:`.Material` : The material for this element.
 
         """
-        return self._material
+        pass
 
     @material.setter
     def material(self, value):
-        if value is not None:
-            if not isinstance(value, Material):
-                raise TypeError('Must set material with Material object')
-        self._material = value
+        pass
 
     @classmethod
     def _from_xml(cls, node, path):
@@ -1926,36 +1820,33 @@ class Inertial(URDFType):
         """float : The mass of the link in kilograms.
 
         """
-        return self._mass
+        pass
 
     @mass.setter
     def mass(self, value):
-        self._mass = float(value)
+        pass
 
     @property
     def inertia(self):
         """(3,3) float : The 3x3 symmetric rotational inertia matrix.
 
         """
-        return self._inertia
+        pass
 
     @inertia.setter
     def inertia(self, value):
-        value = np.asanyarray(value).astype(np.float64)
-        if not np.allclose(value, value.T):
-            raise ValueError('Inertia must be a symmetric matrix')
-        self._inertia = value
+        pass
 
     @property
     def origin(self):
         """(4,4) float : The pose of the inertials relative to the link frame.
 
         """
-        return self._origin
+        pass
 
     @origin.setter
     def origin(self, value):
-        self._origin = configure_origin(value)
+        pass
 
     @classmethod
     def _from_xml(cls, node, path):
@@ -2051,26 +1942,22 @@ class JointCalibration(URDFType):
         """float : description.
 
         """
-        return self._rising
+        pass
 
     @rising.setter
     def rising(self, value):
-        if value is not None:
-            value = float(value)
-        self._rising = value
+        pass
 
     @property
     def falling(self):
         """float : description.
 
         """
-        return self._falling
+        pass
 
     @falling.setter
     def falling(self, value):
-        if value is not None:
-            value = float(value)
-        self._falling = value
+        pass
 
 
 class JointDynamics(URDFType):
@@ -2100,26 +1987,22 @@ class JointDynamics(URDFType):
         """float : The damping value of the joint.
 
         """
-        return self._damping
+        pass
 
     @damping.setter
     def damping(self, value):
-        if value is not None:
-            value = float(value)
-        self._damping = value
+        pass
 
     @property
     def friction(self):
         """float : The static friction value of the joint.
 
         """
-        return self._friction
+        pass
 
     @friction.setter
     def friction(self, value):
-        if value is not None:
-            value = float(value)
-        self._friction = value
+        pass
 
 
 class JointLimit(URDFType):
@@ -2163,22 +2046,22 @@ class JointLimit(URDFType):
         """float : The maximum joint effort.
 
         """
-        return self._effort
+        pass
 
     @effort.setter
     def effort(self, value):
-        self._effort = float(value)
+        pass
 
     @property
     def velocity(self):
         """float : The maximum joint velocity.
 
         """
-        return self._velocity
+        pass
 
     @velocity.setter
     def velocity(self, value):
-        self._velocity = float(value)
+        pass
 
     @property
     def lower(self):
@@ -2241,41 +2124,33 @@ class JointMimic(URDFType):
         """float : The name of the joint to mimic.
 
         """
-        return self._joint
+        pass
 
     @joint.setter
     def joint(self, value):
-        self._joint = str(value)
+        pass
 
     @property
     def multiplier(self):
         """float : The multiplier for the joint configuration.
 
         """
-        return self._multiplier
+        pass
 
     @multiplier.setter
     def multiplier(self, value):
-        if value is not None:
-            value = float(value)
-        else:
-            value = 1.0
-        self._multiplier = value
+        pass
 
     @property
     def offset(self):
         """float : The offset for the joint configuration
 
         """
-        return self._offset
+        pass
 
     @offset.setter
     def offset(self, value):
-        if value is not None:
-            value = float(value)
-        else:
-            value = 0.0
-        self._offset = value
+        pass
 
 
 class SafetyController(URDFType):
@@ -2316,56 +2191,44 @@ class SafetyController(URDFType):
         """float : The soft lower limit where the safety controller kicks in.
 
         """
-        return self._soft_lower_limit
+        pass
 
     @soft_lower_limit.setter
     def soft_lower_limit(self, value):
-        if value is not None:
-            value = float(value)
-        else:
-            value = 0.0
-        self._soft_lower_limit = value
+        pass
 
     @property
     def soft_upper_limit(self):
         """float : The soft upper limit where the safety controller kicks in.
 
         """
-        return self._soft_upper_limit
+        pass
 
     @soft_upper_limit.setter
     def soft_upper_limit(self, value):
-        if value is not None:
-            value = float(value)
-        else:
-            value = 0.0
-        self._soft_upper_limit = value
+        pass
 
     @property
     def k_position(self):
         """float : A relation between the position and velocity limits.
 
         """
-        return self._k_position
+        pass
 
     @k_position.setter
     def k_position(self, value):
-        if value is not None:
-            value = float(value)
-        else:
-            value = 0.0
-        self._k_position = value
+        pass
 
     @property
     def k_velocity(self):
         """float : A relation between the effort and velocity limits.
 
         """
-        return self._k_velocity
+        pass
 
     @k_velocity.setter
     def k_velocity(self, value):
-        self._k_velocity = float(value)
+        pass
 
 ###############################################################################
 # Transmission types
@@ -2401,41 +2264,33 @@ class Actuator(URDFType):
         """str : The name of this actuator.
 
         """
-        return self._name
+        pass
 
     @name.setter
     def name(self, value):
-        self._name = str(value)
+        pass
 
     @property
     def mechanicalReduction(self):
         """str : A specifier for the type of mechanical reduction.
 
         """
-        return self._mechanicalReduction
+        pass
 
     @mechanicalReduction.setter
     def mechanicalReduction(self, value):
-        if value is not None:
-            value = str(value)
-        self._mechanicalReduction = value
+        pass
 
     @property
     def hardwareInterfaces(self):
         """list of str : The supported hardware interfaces.
 
         """
-        return self._hardwareInterfaces
+        pass
 
     @hardwareInterfaces.setter
     def hardwareInterfaces(self, value):
-        if value is None:
-            value = []
-        else:
-            value = list(value)
-            for i, v in enumerate(value):
-                value[i] = str(v)
-        self._hardwareInterfaces = value
+        pass
 
     @classmethod
     def _from_xml(cls, node, path):
@@ -2488,28 +2343,22 @@ class TransmissionJoint(URDFType):
         """str : The name of this transmission joint.
 
         """
-        return self._name
+        pass
 
     @name.setter
     def name(self, value):
-        self._name = str(value)
+        pass
 
     @property
     def hardwareInterfaces(self):
         """list of str : The supported hardware interfaces.
 
         """
-        return self._hardwareInterfaces
+        pass
 
     @hardwareInterfaces.setter
     def hardwareInterfaces(self, value):
-        if value is None:
-            value = []
-        else:
-            value = list(value)
-            for i, v in enumerate(value):
-                value[i] = str(v)
-        self._hardwareInterfaces = value
+        pass
 
     @classmethod
     def _from_xml(cls, node, path):
@@ -2570,22 +2419,22 @@ class Transmission(URDFType):
         """str : The name of this transmission.
 
         """
-        return self._name
+        pass
 
     @name.setter
     def name(self, value):
-        self._name = str(value)
+        pass
 
     @property
     def trans_type(self):
         """str : The type of this transmission.
 
         """
-        return self._trans_type
+        pass
 
     @trans_type.setter
     def trans_type(self, value):
-        self._trans_type = str(value)
+        pass
 
     @property
     def joints(self):
@@ -2595,40 +2444,22 @@ class Transmission(URDFType):
         connected to.
 
         """
-        return self._joints
+        pass
 
     @joints.setter
     def joints(self, value):
-        if value is None:
-            value = []
-        else:
-            value = list(value)
-            for v in value:
-                if not isinstance(v, TransmissionJoint):
-                    raise TypeError(
-                        'Joints expects a list of TransmissionJoint'
-                    )
-        self._joints = value
+        pass
 
     @property
     def actuators(self):
         """:class:`.Actuator` : The actuators the transmission is connected to.
 
         """
-        return self._actuators
+        pass
 
     @actuators.setter
     def actuators(self, value):
-        if value is None:
-            value = []
-        else:
-            value = list(value)
-            for v in value:
-                if not isinstance(v, Actuator):
-                    raise TypeError(
-                        'Actuators expects a list of Actuator'
-                    )
-        self._actuators = value
+        pass
 
     @classmethod
     def _from_xml(cls, node, path):
@@ -2725,47 +2556,44 @@ class Joint(URDFType):
         """str : Name for this joint.
 
         """
-        return self._name
+        pass
 
     @name.setter
     def name(self, value):
-        self._name = str(value)
+        pass
 
     @property
     def joint_type(self):
         """str : The type of this joint.
 
         """
-        return self._joint_type
+        pass
 
     @joint_type.setter
     def joint_type(self, value):
-        value = str(value)
-        if value not in Joint.TYPES:
-            raise ValueError('Unsupported joint type {}'.format(value))
-        self._joint_type = value
+        pass
 
     @property
     def parent(self):
         """str : The name of the parent link.
 
         """
-        return self._parent
+        pass
 
     @parent.setter
     def parent(self, value):
-        self._parent = str(value)
+        pass
 
     @property
     def child(self):
         """str : The name of the child link.
 
         """
-        return self._child
+        pass
 
     @child.setter
     def child(self, value):
-        self._child = str(value)
+        pass
 
     @property
     def axis(self):
@@ -2792,87 +2620,66 @@ class Joint(URDFType):
         (4,4) float : The pose of child and joint frames relative to the
         parent link's frame.
         """
-        return self._origin
+        pass
 
     @origin.setter
     def origin(self, value):
-        self._origin = configure_origin(value)
+        pass
 
     @property
     def limit(self):
         """:class:`.JointLimit` : The limits for this joint.
 
         """
-        return self._limit
+        pass
 
     @limit.setter
     def limit(self, value):
-        if value is None:
-            if self.joint_type in ['prismatic', 'revolute']:
-                logger.error('Require joint limit for prismatic and '
-                                    'revolute joints')
-                logger.error('Setting joint limit to 0.0')
-                value = JointLimit(effort=0.0, velocity=0.0,
-                                   lower=0, upper=0)
-        elif not isinstance(value, JointLimit):
-            raise TypeError('Expected JointLimit type')
-        self._limit = value
+        pass
 
     @property
     def dynamics(self):
         """:class:`.JointDynamics` : The dynamics for this joint.
 
         """
-        return self._dynamics
+        pass
 
     @dynamics.setter
     def dynamics(self, value):
-        if value is not None:
-            if not isinstance(value, JointDynamics):
-                raise TypeError('Expected JointDynamics type')
-        self._dynamics = value
+        pass
 
     @property
     def safety_controller(self):
         """:class:`.SafetyController` : The safety controller for this joint.
 
         """
-        return self._safety_controller
+        pass
 
     @safety_controller.setter
     def safety_controller(self, value):
-        if value is not None:
-            if not isinstance(value, SafetyController):
-                raise TypeError('Expected SafetyController type')
-        self._safety_controller = value
+        pass
 
     @property
     def calibration(self):
         """:class:`.JointCalibration` : The calibration for this joint.
 
         """
-        return self._calibration
+        pass
 
     @calibration.setter
     def calibration(self, value):
-        if value is not None:
-            if not isinstance(value, JointCalibration):
-                raise TypeError('Expected JointCalibration type')
-        self._calibration = value
+        pass
 
     @property
     def mimic(self):
         """:class:`.JointMimic` : The mimic for this joint.
 
         """
-        return self._mimic
+        pass
 
     @mimic.setter
     def mimic(self, value):
-        if value is not None:
-            if not isinstance(value, JointMimic):
-                raise TypeError('Expected JointMimic type')
-        self._mimic = value
+        pass
 
     def is_valid(self, cfg):
         """Check if the provided configuration value is valid for this joint.
@@ -2887,18 +2694,7 @@ class Joint(URDFType):
         is_valid : bool
             True if the configuration is valid, and False otherwise.
         """
-        if self.joint_type not in ['fixed', 'revolute']:
-            return True
-        if self.joint_limit is None:
-            return True
-        cfg = float(cfg)
-        lower = -np.infty
-        upper = np.infty
-        if self.limit.lower is not None:
-            lower = self.limit.lower
-        if self.limit.upper is not None:
-            upper = self.limit.upper
-        return (cfg >= lower and cfg <= upper)
+        pass
 
     def get_child_pose(self, cfg=None):
         """Return child pose
@@ -2927,48 +2723,7 @@ class Joint(URDFType):
         pose : (4,4) float
             The pose of the child relative to the parent.
         """
-        if cfg is None:
-            return self.origin
-        elif self.joint_type == 'fixed':
-            return self.origin
-        elif self.joint_type in ['revolute', 'continuous']:
-            if cfg is None:
-                cfg = 0.0
-            else:
-                cfg = float(cfg)
-            trimesh = _lazy_trimesh()
-            R = trimesh.transformations.rotation_matrix(cfg, self.axis)
-            return self.origin.dot(R)
-        elif self.joint_type == 'prismatic':
-            if cfg is None:
-                cfg = 0.0
-            else:
-                cfg = float(cfg)
-            translation = np.eye(4)
-            translation[:3, 3] = self.axis * cfg
-            return self.origin.dot(translation)
-        elif self.joint_type == 'planar':
-            if cfg is None:
-                cfg = np.zeros(2)
-            else:
-                cfg = np.asanyarray(cfg)
-            if cfg.shape != (2,):
-                raise ValueError(
-                    '(2,) float configuration required for planar joints'
-                )
-            translation = np.eye(4)
-            translation[:3, 3] = self.origin[:3, :2].dot(cfg)
-            return self.origin.dot(translation)
-        elif self.joint_type == 'floating':
-            if cfg is None:
-                cfg = np.zeros(6)
-            else:
-                cfg = configure_origin(cfg)
-            if cfg is None:
-                raise ValueError('Invalid configuration for floating joint')
-            return self.origin.dot(cfg)
-        else:
-            raise ValueError('Invalid configuration')
+        pass
 
     @classmethod
     def _from_xml(cls, node, path):
@@ -3049,60 +2804,44 @@ class Link(URDFType):
         """str : The name of this link.
 
         """
-        return self._name
+        pass
 
     @name.setter
     def name(self, value):
-        self._name = str(value)
+        pass
 
     @property
     def inertial(self):
         """:class:`.Inertial` : Inertial properties of the link.
 
         """
-        return self._inertial
+        pass
 
     @inertial.setter
     def inertial(self, value):
-        if value is not None and not isinstance(value, Inertial):
-            raise TypeError('Expected Inertial object')
-        self._inertial = value
+        pass
 
     @property
     def visuals(self):
         """list of :class:`.Visual` : The visual properties of this link.
 
         """
-        return self._visuals
+        pass
 
     @visuals.setter
     def visuals(self, value):
-        if value is None:
-            value = []
-        else:
-            value = list(value)
-            for v in value:
-                if not isinstance(v, Visual):
-                    raise ValueError('Expected list of Visual objects')
-        self._visuals = value
+        pass
 
     @property
     def collisions(self):
         """list of :class:`.Collision` : The collision properties of this link.
 
         """
-        return self._collisions
+        pass
 
     @collisions.setter
     def collisions(self, value):
-        if value is None:
-            value = []
-        else:
-            value = list(value)
-            for v in value:
-                if not isinstance(v, Collision):
-                    raise ValueError('Expected list of Collision objects')
-        self._collisions = value
+        pass
 
     @property
     def collision_mesh(self):
@@ -3112,27 +2851,7 @@ class Link(URDFType):
         the link, specified in the link frame, or None if there isn't one.
 
         """
-        if len(self.collisions) == 0:
-            return None
-        if self._collision_mesh is None:
-            meshes = []
-            for c in self.collisions:
-                for m in c.geometry.meshes:
-                    m = m.copy()
-                    if c.geometry.mesh is None:
-                        m.metadata["original_primitive_origin_for_sdf"] = c.origin.copy()  # noqa: E501
-                    pose = c.origin
-                    if c.geometry.mesh is not None:
-                        if c.geometry.mesh.scale is not None:
-                            S = np.eye(4)
-                            S[:3, :3] = np.diag(c.geometry.mesh.scale)
-                            pose = pose.dot(S)
-                    m.apply_transform(pose)
-                    meshes.append(m)
-            if len(meshes) == 0:
-                return None
-            self._collision_mesh = (meshes[0] + meshes[1:])
-        return self._collision_mesh
+        pass
 
 
 class URDF(URDFType):
@@ -3273,11 +2992,11 @@ class URDF(URDFType):
         """str : The name of the URDF.
 
         """
-        return self._name
+        pass
 
     @name.setter
     def name(self, value):
-        self._name = str(value)
+        pass
 
     @property
     def links(self):
@@ -3287,7 +3006,7 @@ class URDF(URDFType):
         directly. If you want to add or remove links, use
         the appropriate functions.
         """
-        return copy.copy(self._links)
+        pass
 
     @property
     def link_map(self):
@@ -3297,7 +3016,7 @@ class URDF(URDFType):
         directly. If you want to add or remove links, use
         the appropriate functions.
         """
-        return copy.copy(self._link_map)
+        pass
 
     @property
     def joints(self):
@@ -3307,7 +3026,7 @@ class URDF(URDFType):
         directly. If you want to add or remove joints, use
         the appropriate functions.
         """
-        return copy.copy(self._joints)
+        pass
 
     @property
     def joint_map(self):
@@ -3317,7 +3036,7 @@ class URDF(URDFType):
         directly. If you want to add or remove joints, use
         the appropriate functions.
         """
-        return copy.copy(self._joint_map)
+        pass
 
     @property
     def transmissions(self):
@@ -3327,7 +3046,7 @@ class URDF(URDFType):
         directly. If you want to add or remove transmissions, use
         the appropriate functions.
         """
-        return copy.copy(self._transmissions)
+        pass
 
     @property
     def transmission_map(self):
@@ -3337,7 +3056,7 @@ class URDF(URDFType):
         directly. If you want to add or remove transmissions, use
         the appropriate functions.
         """
-        return copy.copy(self._transmission_map)
+        pass
 
     @property
     def materials(self):
@@ -3347,7 +3066,7 @@ class URDF(URDFType):
         directly. If you want to add or remove materials, use
         the appropriate functions.
         """
-        return copy.copy(self._materials)
+        pass
 
     @property
     def material_map(self):
@@ -3357,18 +3076,18 @@ class URDF(URDFType):
         directly. If you want to add or remove materials, use
         the appropriate functions.
         """
-        return copy.copy(self._material_map)
+        pass
 
     @property
     def other_xml(self):
         """str : Any extra XML that belongs with the URDF.
 
         """
-        return self._other_xml
+        pass
 
     @other_xml.setter
     def other_xml(self, value):
-        self._other_xml = value
+        pass
 
     @property
     def actuated_joints(self):
@@ -3378,7 +3097,7 @@ class URDF(URDFType):
         actuated.
         This excludes mimic joints and fixed joints.
         """
-        return self._actuated_joints
+        pass
 
     @property
     def base_link(self):
@@ -3386,7 +3105,7 @@ class URDF(URDFType):
 
         The base link is the single link that has no parent.
         """
-        return self._base_link
+        pass
 
     @property
     def end_links(self):
@@ -3394,7 +3113,7 @@ class URDF(URDFType):
 
         The end links are the links that have no children.
         """
-        return self._end_links
+        pass
 
     def save(self, file_obj):
         """Save this URDF to a file.

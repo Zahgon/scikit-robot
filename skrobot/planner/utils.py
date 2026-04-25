@@ -30,12 +30,10 @@ def scipinize(fun):
     closure_member = {'jac_cache': None}
 
     def fun_scipinized(x):
-        f, jac = fun(x)
-        closure_member['jac_cache'] = jac
-        return f
+        pass
 
     def fun_scipinized_jac(x):
-        return closure_member['jac_cache']
+        pass
     return fun_scipinized, fun_scipinized_jac
 
 

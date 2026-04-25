@@ -62,66 +62,23 @@ class PR2ROSRobotInterface(ROSRobotMoveBaseInterface):
             if all interpolation has stopped, return True.
 
         """
-        super(PR2ROSRobotInterface, self).wait_interpolation(
-            controller_type, timeout)
-        while not rospy.is_shutdown():
-            self.update_robot_state(wait_until_update=True)
-            if all(map(lambda j: j.name in self.ignore_joint_list
-                       or abs(j.joint_velocity) < 0.05
-                       if isinstance(j, RotationalJoint) else
-                       abs(j.joint_velocity) < 0.001,
-                       self.robot.joint_list)):
-                break
-        # TODO(Fix return value)
-        return True
+        pass
 
     @property
     def larm_controller(self):
-        return dict(
-            controller_type='larm_controller',
-            controller_action='l_arm_controller/follow_joint_trajectory',
-            controller_state='l_arm_controller/state',
-            action_type=control_msgs.msg.FollowJointTrajectoryAction,
-            joint_names=['l_shoulder_pan_joint',
-                         'l_shoulder_lift_joint',
-                         'l_upper_arm_roll_joint',
-                         'l_elbow_flex_joint',
-                         'l_forearm_roll_joint',
-                         'l_wrist_flex_joint',
-                         'l_wrist_roll_joint'])
+        pass
 
     @property
     def rarm_controller(self):
-        return dict(
-            controller_type='rarm_controller',
-            controller_action='r_arm_controller/follow_joint_trajectory',
-            controller_state='r_arm_controller/state',
-            action_type=control_msgs.msg.FollowJointTrajectoryAction,
-            joint_names=['r_shoulder_pan_joint',
-                         'r_shoulder_lift_joint',
-                         'r_upper_arm_roll_joint',
-                         'r_elbow_flex_joint',
-                         'r_forearm_roll_joint',
-                         'r_wrist_flex_joint',
-                         'r_wrist_roll_joint'])
+        pass
 
     @property
     def head_controller(self):
-        return dict(
-            controller_type='head_controller',
-            controller_action='head_traj_controller/follow_joint_trajectory',
-            controller_state='head_traj_controller/state',
-            action_type=control_msgs.msg.FollowJointTrajectoryAction,
-            joint_names=['head_pan_joint', 'head_tilt_joint'])
+        pass
 
     @property
     def torso_controller(self):
-        return dict(
-            controller_type='torso_controller',
-            controller_action='torso_controller/follow_joint_trajectory',
-            controller_state='torso_controller/state',
-            action_type=control_msgs.msg.FollowJointTrajectoryAction,
-            joint_names=['torso_lift_joint'])
+        pass
 
     def _continuous_joint_largest_movement(self, av_diff, controller_type):
         assert isinstance(controller_type, str)
@@ -258,25 +215,7 @@ class PR2ROSRobotInterface(ROSRobotMoveBaseInterface):
         wait : bool
             if wait is True, wait until gripper action ends.
         """
-        if arm == 'larm':
-            action_clients = [self.l_gripper_action]
-        elif arm == 'rarm':
-            action_clients = [self.r_gripper_action]
-        elif arm == 'arms':
-            action_clients = [self.l_gripper_action,
-                              self.r_gripper_action]
-        else:
-            return
-        for action_client in action_clients:
-            goal = pr2_controllers_msgs.msg.Pr2GripperCommandActionGoal()
-            goal.goal.command.position = pos
-            goal.goal.command.max_effort = effort
-            action_client.send_goal(goal.goal)
-        results = []
-        if wait:
-            for action_client in action_clients:
-                results.append(action_client.wait_for_result())
-        return results
+        pass
 
     def pr2_gripper_state_callback(self, arm, msg):
         self.gripper_states[arm] = msg

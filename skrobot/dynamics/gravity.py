@@ -197,44 +197,7 @@ def build_gravity_torque_function(params, backend=None):
         torques : array, shape (n_joints,)
             Gravity-induced torque at each joint.
         """
-        if gravity is None:
-            gravity = backend.array([0.0, 0.0, -9.81])
-
-        positions, rotations = compute_link_transforms(joint_angles)
-
-        torques = backend.zeros(n_joints)
-
-        for i in range(n_joints):
-            joint_pos = positions[i]
-            joint_rot = rotations[i]
-            joint_axis_world = joint_rot @ joint_axes[i]
-
-            total_torque = 0.0
-
-            for j in range(i, n_joints):
-                # COM in world frame
-                com_local = link_coms[j]
-                com_world = rotations[j] @ com_local + positions[j]
-
-                # Moment arm
-                r = com_world - joint_pos
-
-                # Gravity force
-                F_gravity = link_masses[j] * gravity
-
-                # Torque contribution
-                torque_vec = backend.cross(r, F_gravity)
-                total_torque = total_torque + backend.dot(torque_vec, joint_axis_world)
-
-            # Update torques array
-            if hasattr(torques, 'at'):
-                # JAX-style immutable array
-                torques = torques.at[i].set(total_torque)
-            else:
-                # NumPy-style mutable array
-                torques[i] = total_torque
-
-        return torques
+        pass
 
     # Apply JIT if backend supports it
     if backend.supports_jit:
@@ -309,28 +272,7 @@ def build_potential_energy_function(params, backend=None):
         U : float
             Potential energy in Joules.
         """
-        if gravity is None:
-            gravity = backend.array([0.0, 0.0, -9.81])
-
-        pos = base_position
-        rot = base_rotation
-        total_energy = 0.0
-
-        for i in range(n_joints):
-            pos = pos + rot @ link_translations[i]
-            rot = rot @ link_rotations[i]
-            joint_rot = rodrigues_rotation(joint_axes[i], joint_angles[i])
-            rot = rot @ joint_rot
-
-            # COM in world frame
-            com_world = rot @ link_coms[i] + pos
-
-            # Potential energy contribution: U = -m * g^T * h
-            # (negative because gravity points down)
-            total_energy = total_energy - link_masses[i] * backend.dot(
-                gravity, com_world)
-
-        return total_energy
+        pass
 
     # Apply JIT if backend supports it
     if backend.supports_jit:

@@ -163,58 +163,7 @@ class GradientDescentSolver(BaseSolver):
         ]
 
         def solve_fn(trajectory, lower, upper, learning_rate, max_iterations):
-            start = trajectory[0]
-            end = trajectory[-1]
-
-            # State: (current_traj, best_traj, best_cost)
-            def body_fn(i, state):
-                traj, best_traj, best_cost = state
-                cost, grad = cost_and_grad(traj)
-
-                # Gradient clipping
-                grad_norm = jnp.sqrt(jnp.sum(grad ** 2) + 1e-10)
-                grad = jax.lax.cond(
-                    grad_norm > max_grad_norm,
-                    lambda g: g * (max_grad_norm / grad_norm),
-                    lambda g: g,
-                    grad
-                )
-
-                # Gradient step
-                new_traj = traj - learning_rate * grad
-
-                # Clip to joint limits
-                new_traj = jnp.clip(new_traj, lower, upper)
-
-                # Fix endpoints
-                if fixed_start:
-                    new_traj = new_traj.at[0].set(start)
-                if fixed_end:
-                    new_traj = new_traj.at[-1].set(end)
-
-                # Fix intermediate waypoints
-                for wp_idx, wp_angles in wp_constraints:
-                    new_traj = new_traj.at[wp_idx].set(wp_angles)
-
-                # Track best trajectory
-                new_cost = cost_fn(new_traj)
-                is_better = new_cost < best_cost
-                new_best_traj = jax.lax.cond(
-                    is_better,
-                    lambda _: new_traj,
-                    lambda _: best_traj,
-                    None,
-                )
-                new_best_cost = jnp.where(is_better, new_cost, best_cost)
-
-                return (new_traj, new_best_traj, new_best_cost)
-
-            initial_cost = cost_fn(trajectory)
-            _, best_traj, best_cost = jax.lax.fori_loop(
-                0, max_iterations, body_fn,
-                (trajectory, trajectory, initial_cost),
-            )
-            return best_traj, best_cost
+            pass
 
         # JIT compile with static argnums for max_iterations
         return jax.jit(solve_fn, static_argnums=(4,))
@@ -317,15 +266,7 @@ class GradientDescentSolver(BaseSolver):
                         obs_radii = jnp.array([o['radius'] for o in sphere_obs])
 
                         def coll_cost_single(angles):
-                            sphere_pos = get_sphere_positions(angles)
-                            signed_dists = compute_sphere_obstacle_distances(
-                                sphere_pos, sphere_radii,
-                                obs_centers, obs_radii, jnp
-                            )
-                            residuals = compute_collision_residuals(
-                                signed_dists, activation, jnp
-                            )
-                            return jnp.sum(residuals ** 2)
+                            pass
 
                         coll_costs = jax.vmap(coll_cost_single)(trajectory)
                         total_cost = total_cost + weight * jnp.sum(coll_costs)
@@ -340,15 +281,7 @@ class GradientDescentSolver(BaseSolver):
                         pairs_j_arr = jnp.array(pairs_j)
 
                         def self_coll_cost_single(angles):
-                            sphere_pos = get_sphere_positions(angles)
-                            signed_dists = compute_self_collision_distances(
-                                sphere_pos, sphere_radii,
-                                pairs_i_arr, pairs_j_arr, jnp
-                            )
-                            residuals = compute_collision_residuals(
-                                signed_dists, activation, jnp
-                            )
-                            return jnp.sum(residuals ** 2)
+                            pass
 
                         self_coll_costs = jax.vmap(
                             self_coll_cost_single
@@ -365,23 +298,14 @@ class GradientDescentSolver(BaseSolver):
                         target_rots = jnp.array(target_rots)
 
                         def cart_cost_single(args):
-                            angles, t_pos, t_rot = args
-                            ee_pos, ee_rot = get_ee_pose(angles)
-                            # Use SE(3) logarithmic map for pose error
-                            pose_err = pose_error_log(
-                                ee_pos, ee_rot, t_pos, t_rot)
-                            pos_err = jnp.sum(pose_err[:3] ** 2)
-                            rot_err = jnp.sum(pose_err[3:] ** 2)
-                            return pos_err + rot_w * rot_err
+                            pass
 
                         cart_costs = jax.vmap(cart_cost_single)(
                             (trajectory, target_pos, target_rots)
                         )
                     else:
                         def cart_cost_pos_only(args):
-                            angles, t_pos = args
-                            ee_pos, _ = get_ee_pose(angles)
-                            return jnp.sum((ee_pos - t_pos) ** 2)
+                            pass
 
                         cart_costs = jax.vmap(cart_cost_pos_only)(
                             (trajectory, target_pos)

@@ -23,7 +23,7 @@ class Fetch(RobotModelFromURDF):
 
     @cached_property
     def default_urdf_path(self):
-        return fetch_urdfpath()
+        pass
 
     def reset_pose(self):
         self.torso_lift_joint.joint_angle(0)
@@ -39,62 +39,25 @@ class Fetch(RobotModelFromURDF):
         return self.angle_vector()
 
     def reset_manip_pose(self):
-        self.torso_lift_joint.joint_angle(0)
-        self.shoulder_pan_joint.joint_angle(0)
-        self.shoulder_lift_joint.joint_angle(0)
-        self.upperarm_roll_joint.joint_angle(0)
-        self.elbow_flex_joint.joint_angle(np.pi / 2.0)
-        self.forearm_roll_joint.joint_angle(0)
-        self.wrist_flex_joint.joint_angle(- np.pi / 2.0)
-        self.wrist_roll_joint.joint_angle(0)
-        self.head_pan_joint.joint_angle(0)
-        self.head_tilt_joint.joint_angle(0)
-        return self.angle_vector()
+        pass
 
     @cached_property
     def rarm(self):
-        rarm_links = [self.shoulder_pan_link,
-                      self.shoulder_lift_link,
-                      self.upperarm_roll_link,
-                      self.elbow_flex_link,
-                      self.forearm_roll_link,
-                      self.wrist_flex_link,
-                      self.wrist_roll_link]
-        rarm_joints = []
-        for link in rarm_links:
-            rarm_joints.append(link.joint)
-        r = RobotModel(link_list=rarm_links,
-                       joint_list=rarm_joints)
-        r.end_coords = self.rarm_end_coords
-        return r
+        pass
 
     @cached_property
     def rarm_with_torso(self):
-        rarm_with_torso_links = [self.torso_lift_link,
-                                 self.shoulder_pan_link,
-                                 self.shoulder_lift_link,
-                                 self.upperarm_roll_link,
-                                 self.elbow_flex_link,
-                                 self.forearm_roll_link,
-                                 self.wrist_flex_link,
-                                 self.wrist_roll_link]
-        rarm_with_torso_joints = []
-        for link in rarm_with_torso_links:
-            rarm_with_torso_joints.append(link.joint)
-        r = RobotModel(link_list=rarm_with_torso_links,
-                       joint_list=rarm_with_torso_joints)
-        r.end_coords = self.rarm_end_coords
-        return r
+        pass
 
     # New naming convention aliases (backward compatible)
     @property
     def arm(self):
-        return self.rarm
+        pass
 
     @property
     def arm_with_torso(self):
-        return self.rarm_with_torso
+        pass
 
     @property
     def arm_end_coords(self):
-        return self.rarm_end_coords
+        pass

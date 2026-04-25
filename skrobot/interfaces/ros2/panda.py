@@ -37,57 +37,19 @@ class PandaROS2RobotInterface(ROS2RobotInterfaceBase):
 
     @property
     def rarm_controller(self):
-        return dict(
-            controller_type='rarm_controller',
-            controller_action='/panda_arm_controller/follow_joint_trajectory',
-            controller_state='/panda_arm_controller/state',
-            action_type=control_msgs.action.FollowJointTrajectory,
-            joint_names=[j.name for j in self.robot.rarm.joint_list],
-        )
+        pass
 
     def default_controller(self):
         return [self.rarm_controller]
 
     def grasp(self, width=0, **kwargs):
-        self.move_gripper(width=width, **kwargs)
+        pass
 
     def ungrasp(self, **kwargs):
-        self.move_gripper(width=WIDTH_MAX, **kwargs)
+        pass
 
     def move_gripper(self, width, speed=WIDTH_MAX, wait=True):
-        if not FRANKA_GRIPPER_AVAILABLE:
-            self.get_logger().warn("franka_gripper package not available. Cannot move gripper.")
-            return
-
-        goal = franka_gripper.action.Move.Goal()
-        goal.width = width
-        goal.speed = speed
-
-        if wait:
-            future = self.gripper_move.send_goal_async(goal)
-            rclpy.spin_until_future_complete(self, future)
-            goal_handle = future.result()
-            if goal_handle.accepted:
-                result_future = goal_handle.get_result_async()
-                rclpy.spin_until_future_complete(self, result_future)
-                return result_future.result()
-        else:
-            self.gripper_move.send_goal_async(goal)
+        pass
 
     def stop_gripper(self, wait=True):
-        if not FRANKA_GRIPPER_AVAILABLE:
-            self.get_logger().warn("franka_gripper package not available. Cannot stop gripper.")
-            return
-
-        goal = franka_gripper.action.Stop.Goal()
-
-        if wait:
-            future = self.gripper_stop.send_goal_async(goal)
-            rclpy.spin_until_future_complete(self, future)
-            goal_handle = future.result()
-            if goal_handle.accepted:
-                result_future = goal_handle.get_result_async()
-                rclpy.spin_until_future_complete(self, result_future)
-                return result_future.result()
-        else:
-            self.gripper_stop.send_goal_async(goal)
+        pass

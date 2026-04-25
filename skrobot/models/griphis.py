@@ -77,7 +77,7 @@ class Griphis(RobotModelFromURDF):
 
     @cached_property
     def default_urdf_path(self):
-        return griphis_urdfpath()
+        pass
 
     def _attach_gripper_end_coords(self, gripper_id):
         """Attach per-nail tip coords and a live-centroid end_coords."""

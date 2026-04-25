@@ -145,14 +145,7 @@ class ROSRobotInterfaceBase(object):
         subscriber : rospy.Subscriber
             The created subscriber.
         """
-        sub = rospy.Subscriber(
-            topic_name, JointState,
-            callback=self.joint_state_callback,
-            queue_size=queue_size)
-        self._additional_joint_states_subs.append(sub)
-        rospy.loginfo(
-            "Added additional joint_states topic: {}".format(topic_name))
-        return sub
+        pass
 
     def _check_time(self, time, fastest_time, time_scale):
         """Check and Return send angle vector time
@@ -351,41 +344,7 @@ class ROSRobotInterfaceBase(object):
         return True
 
     def joint_state_callback(self, msg):
-        self._joint_state_msg = msg
-        self._received_joint_names.update(msg.name)
-        if 'name' in self.robot_state:
-            robot_state_names = self.robot_state['name']
-        else:
-            # Initialize with all joint names from the robot model
-            robot_state_names = [j.name for j in self.robot.joint_list]
-            self.robot_state['name'] = robot_state_names
-            for key in ['position', 'velocity', 'effort']:
-                self.robot_state[key] = np.zeros(len(robot_state_names))
-            self.robot_state['stamp_list'] = [None for _ in robot_state_names]
-
-        # set joint data
-        joint_names = msg.name
-        stamp_list = self.robot_state['stamp_list']
-        for key in ['position', 'velocity', 'effort']:
-            joint_data = getattr(msg, key)
-            index = 0
-            if len(joint_names) == len(joint_data):
-                data = self.robot_state[key]
-                for jn in joint_names:
-                    # Skip joint names that are not in the robot model
-                    if jn not in robot_state_names:
-                        index += 1
-                        continue
-                    joint_index = robot_state_names.index(jn)
-                    data[joint_index] = joint_data[index]
-                    index += 1
-
-                    # update stamp
-                    if key == 'position':
-                        stamp_list[joint_index] = msg.header.stamp
-        self.robot_state['stamp_list'] = stamp_list
-        self.robot_state['name'] = robot_state_names
-        self.set_robot_state('stamp', msg.header.stamp)
+        pass
 
     def add_controller(self, controller_type, joint_enable_check=True,
                        create_actions=None):
@@ -675,7 +634,7 @@ class ROSRobotInterfaceBase(object):
 
     def potentio_vector(self):
         """Returns current robot angle vector, This method uses caced data."""
-        return self.robot.angle_vector()
+        pass
 
     def send_ros_controller(
             self,
@@ -838,36 +797,17 @@ class ROSRobotInterfaceBase(object):
         list[bool]
             return values are a list of is_interpolating for all controllers.
         """
-        if controller_type:
-            controller_actions = self.controller_table[controller_type]
-        else:
-            controller_actions = self.controller_table[self.controller_type]
-        for action in controller_actions:
-            # TODO(simultaneously wait_for_result)
-            action.wait_for_result(timeout=rospy.Duration(timeout))
-        is_interpolatings = map(
-            lambda action: action.is_interpolating(), controller_actions)
-        return list(is_interpolatings)
+        pass
 
     def is_interpolating(self, controller_type=None):
-        if controller_type:
-            controller_actions = self.controller_table[controller_type]
-        else:
-            controller_actions = self.controller_table[self.controller_type]
-        is_interpolatings = map(
-            lambda action: action.is_interpolating(), controller_actions)
-        return any(list(is_interpolatings))
+        pass
 
     def is_moving(self, controller_type=None):
         """"Check whether the robot is moving due to follow_joint_trajectory.
 
         This is not limited to goals sent from the same instance.
         """
-        if controller_type is None or controller_type == self.controller_type:
-            is_movings = list(self.moving_status.values())
-        else:
-            is_movings = [self.moving_status[controller_type]]
-        return any(is_movings)
+        pass
 
     def angle_vector_duration(self, start_av, end_av, controller_type=None,
                               return_joint_names=False):
@@ -925,8 +865,7 @@ class ROSRobotInterfaceBase(object):
         """Stop motion via follow joint trajectory cancel
 
         """
-        for action in self.controller_actions:
-            action.cancel_all_goals()
+        pass
 
 
 class ControllerActionClient(actionlib.SimpleActionClient):
@@ -938,8 +877,7 @@ class ControllerActionClient(actionlib.SimpleActionClient):
         actionlib.SimpleActionClient.__init__(self, ns, ActionSpec)
 
     def action_feedback_cb(self, msg):
-        rospy.debug('action_feedback_cb {}'.format(msg))
-        self.last_feedback_msg_stamp = msg.header.stamp
+        pass
 
     def is_interpolating(self):
-        return not self.simple_state == actionlib.SimpleGoalState.DONE
+        pass

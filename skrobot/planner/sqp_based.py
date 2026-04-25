@@ -119,24 +119,14 @@ def _sqp_based_trajectory_optimization(
     A = construct_smoothcost_fullmat(n_wp, n_dof, weights=tuple(weights))
 
     def fun_objective(x):
-        f = (0.5 * A.dot(x).dot(x)).item() / n_wp
-        grad = A.dot(x) / n_wp
-        return f, grad
+        pass
 
     def fun_ineq(xi):
-        av_seq = xi.reshape(n_wp, n_dof)
-        return collision_ineq_fun(av_seq)
+        pass
 
     def fun_eq(xi):
         # terminal constraint
-        Q = xi.reshape(n_wp, n_dof)
-        q_start = av_seq_init[0]
-        q_end = av_seq_init[-1]
-        f = np.hstack((q_start - Q[0], q_end - Q[-1]))
-        grad_ = np.zeros((n_dof * 2, n_dof * n_wp))
-        grad_[:n_dof, :n_dof] = - np.eye(n_dof)
-        grad_[-n_dof:, -n_dof:] = - np.eye(n_dof)
-        return f, grad_
+        pass
 
     eq_const_scipy, eq_const_jac_scipy = scipinize(fun_eq)
     eq_dict = {'type': 'eq', 'fun': eq_const_scipy,

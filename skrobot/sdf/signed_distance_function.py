@@ -83,10 +83,7 @@ def link2sdf(link, dim_grid=30):
         e.g. if Link has geometry of urdf.Box, then BoxSDF is
         created.
     """
-
-    sdf = trimesh2sdf(link.collision_mesh, dim_grid=dim_grid)
-    link.assoc(sdf, relative_coords=sdf)
-    return sdf
+    pass
 
 
 class SignedDistanceFunction(CascadedCoords):
@@ -166,9 +163,7 @@ class SignedDistanceFunction(CascadedCoords):
         sd_vals : numpy.ndarray[float](n_point,)
             signed distances corresponding to `logicals`.
         """
-        sd_vals = self.__call__(points_world)
-        logicals = np.abs(sd_vals) < self._surface_threshold
-        return logicals, sd_vals
+        pass
 
     def surface_points(self, n_sample=1000):
         """Sample points from the implicit surface of the sdf.
@@ -185,10 +180,7 @@ class SignedDistanceFunction(CascadedCoords):
         dists : numpy.ndarray[float](n_point,)
             signed distances corresponding to points_world.
         """
-        self.update()
-        points_, dists = self._surface_points(n_sample=n_sample)
-        points_world = self._transform_pts_sdf_to_world(points_)
-        return points_world, dists
+        pass
 
     def _transform_pts_world_to_sdf(self, points_world):
         """Transform points from the world frame to the sdf frame.
@@ -203,9 +195,7 @@ class SignedDistanceFunction(CascadedCoords):
         points_sdf : numpy.ndarray[float](n_point, 3)
             2 dim point array w.r.t. the sdf-defined sdf frame.
         """
-        self.update()
-        points_sdf = self.tf_world_to_sdf.transform_vector(points_world)
-        return points_sdf
+        pass
 
     def _transform_pts_sdf_to_world(self, points_sdf):
         """Transform points from the sdf to the world frame.
@@ -220,8 +210,7 @@ class SignedDistanceFunction(CascadedCoords):
         points_world : numpy.ndarray[float](n_point, 3)
             2 dim point array w.r.t. the world frame.
         """
-        points_world = self.tf_sdf_to_world.transform_vector(points_sdf)
-        return points_world
+        pass
 
 
 class UnionSDF(SignedDistanceFunction):
@@ -245,22 +234,11 @@ class UnionSDF(SignedDistanceFunction):
         self._surface_threshold = max(threshold_list)
 
     def _signed_distance(self, points_sdf):
-        sd_vals_list = np.array([sdf(points_sdf) for sdf in self.sdf_list])
-        sd_vals_union = np.min(sd_vals_list, axis=0)
-        return sd_vals_union
+        pass
 
     def _surface_points(self, n_sample=1000):
         # equally assign sample number to each sdf.surface_points()
-        n_list = len(self.sdf_list)
-        n_sample_each = int(floor(n_sample / n_list))
-        n_sample_last = n_sample - n_sample_each * (n_list - 1)
-        num_list = [n_sample_each] * (n_list - 1) + [n_sample_last]
-
-        points = np.vstack([sdf.surface_points(n_sample=n_sample_)[0]
-                            for sdf, n_sample_
-                            in zip(self.sdf_list, num_list)])
-        logicals, sd_vals = self.on_surface(points)
-        return points[logicals], sd_vals[logicals]
+        pass
 
     @classmethod
     def from_robot_model(cls, robot_model, dim_grid=50):
@@ -277,12 +255,7 @@ class UnionSDF(SignedDistanceFunction):
         union_sdf : skrobot.sdf.UnionSDF
             union sdf of robot_model
         """
-        sdf_list = []
-        for link in robot_model.link_list:
-            if link.collision_mesh is not None:
-                sdf = link2sdf(link, dim_grid=dim_grid)
-                sdf_list.append(sdf)
-        return cls(sdf_list)
+        pass
 
 
 class BoxSDF(SignedDistanceFunction):
@@ -294,27 +267,11 @@ class BoxSDF(SignedDistanceFunction):
         self._surface_threshold = np.min(self._width) * 1e-2
 
     def _signed_distance(self, points_sdf):
-        n_pts, _ = points_sdf.shape
-
-        half_extent = self._width * 0.5
-        sd_vals_each_axis = np.abs(points_sdf) - half_extent[None, :]
-
-        positive_dists_each_axis = np.maximum(sd_vals_each_axis, 0.0)
-        positive_dists = np.sqrt(np.sum(positive_dists_each_axis**2, axis=1))
-
-        negative_dists_each_axis = np.max(sd_vals_each_axis, axis=1)
-        negative_dists = np.minimum(negative_dists_each_axis, 0.0)
-
-        sd_vals = positive_dists + negative_dists
-        return sd_vals
+        pass
 
     def _surface_points(self, n_sample=1000):
         # surface points by raymarching
-        vecs = np.random.randn(n_sample, 3)
-        ray_tips = np.zeros((n_sample, 3))
-        return ray_marching(ray_tips, vecs,
-                            self._signed_distance,
-                            self._surface_threshold)
+        pass
 
 
 class SphereSDF(SignedDistanceFunction):
@@ -326,18 +283,11 @@ class SphereSDF(SignedDistanceFunction):
         self._surface_threshold = radius * 1e-2
 
     def _signed_distance(self, points_sdf):
-        n_pts, _ = points_sdf.shape
-        dists_from_origin = np.sqrt(np.sum(points_sdf**2, axis=1))
-        sd_vals = dists_from_origin - self._radius
-        return sd_vals
+        pass
 
     def _surface_points(self, n_sample=1000):
         # surface points by raymarching
-        vecs = np.random.randn(n_sample, 3)
-        ray_tips = np.zeros((n_sample, 3))
-        return ray_marching(ray_tips, vecs,
-                            self._signed_distance,
-                            self._surface_threshold)
+        pass
 
 
 class CylinderSDF(SignedDistanceFunction):
@@ -350,36 +300,11 @@ class CylinderSDF(SignedDistanceFunction):
         self._surface_threshold = min(radius, height) * 1e-2
 
     def _signed_distance(self, points_sdf):
-        n_pts, _ = points_sdf.shape
-        height_half = 0.5 * self._height
-        radius_from_center = np.sqrt(
-            points_sdf[:, 0]**2 + points_sdf[:, 1]**2)
-        height_from_center = points_sdf[:, 2]
-
-        # Now the problem is reduced to 2 dim [radius, height] box sdf
-        # so the algorithm from now is the same as the box sdf computation
-        half_extent_2d = np.array([self._radius, height_half])
-        pts_from_center_2d = np.vstack(
-            [radius_from_center, height_from_center]).T
-        sd_vals_each_axis = np.abs(pts_from_center_2d)\
-            - half_extent_2d[None, :]
-
-        positive_dists_each_axis = np.maximum(sd_vals_each_axis, 0.0)
-        positive_dists = np.sqrt(np.sum(positive_dists_each_axis**2, axis=1))
-
-        negative_dists_each_axis = np.max(sd_vals_each_axis, axis=1)
-        negative_dists = np.minimum(negative_dists_each_axis, 0.0)
-
-        sd_vals = positive_dists + negative_dists
-        return sd_vals
+        pass
 
     def _surface_points(self, n_sample=1000):
         # surface points by raymarching
-        vecs = np.random.randn(n_sample, 3)
-        ray_tips = np.zeros((n_sample, 3))
-        return ray_marching(ray_tips, vecs,
-                            self._signed_distance,
-                            self._surface_threshold)
+        pass
 
 
 class GridSDF(SignedDistanceFunction):
@@ -429,44 +354,13 @@ class GridSDF(SignedDistanceFunction):
             If points is out of the interpolator's boundary,
             the corresponding element of is_out_arr is True
         """
-        points_sdf \
-            = super(GridSDF, self)._transform_pts_world_to_sdf(points_world)
-        points_sdf_offset = points_sdf - self.origin[None, :]
-        points_grid = np.array(points_sdf_offset) / self._resolution
-        is_out_arr = np.logical_or(
-            (points_grid < 0).any(axis=1),
-            (points_grid >= np.array(self._dims)).any(axis=1))
-        return is_out_arr
+        pass
 
     def _signed_distance(self, points_sdf):
-        points_sdf = np.array(points_sdf)
-        points_sdf_offset = points_sdf - self.origin[None, :]
-        sd_vals = self.itp(points_sdf_offset)
-        return sd_vals
+        pass
 
     def _surface_points(self, n_sample=None):
-        surface_points_offset = np.where(
-            np.abs(self._data) < self._surface_threshold)
-        x = surface_points_offset[0]
-        y = surface_points_offset[1]
-        z = surface_points_offset[2]
-        surface_points_offset = np.c_[x, np.c_[y, z]]
-        surface_values = self._data[surface_points_offset[:, 0],
-                                    surface_points_offset[:, 1],
-                                    surface_points_offset[:, 2]]
-        if n_sample is not None:
-            # somple points WITHOUT duplication
-            n_pts = len(surface_points_offset)
-            n_sample = min(n_sample, n_pts)
-            idxes = np.random.permutation(n_pts)[:n_sample]
-
-            # update points and sds
-            surface_points_offset = surface_points_offset[idxes]
-            surface_values = surface_values[idxes]
-        surface_points = (surface_points_offset * self._resolution)\
-            + self.origin[None, :]
-
-        return surface_points, surface_values
+        pass
 
     @staticmethod
     def from_file(filepath, **kwargs):
@@ -541,14 +435,4 @@ class GridSDF(SignedDistanceFunction):
 
 
 def ray_marching(pts_starts, direction_arr, f_sdf, threshold):
-    norms = np.linalg.norm(direction_arr, axis=1)
-    direction_arr_unit = direction_arr / norms[:, None]
-    ray_tips = pts_starts
-    while True:
-        sd_vals = f_sdf(ray_tips)
-        ray_tips += direction_arr_unit * sd_vals[:, None]
-        if np.all(np.abs(sd_vals) < threshold):
-            break
-    tips_final = ray_tips
-    sd_vals_final = f_sdf(ray_tips)
-    return tips_final, sd_vals_final
+    pass

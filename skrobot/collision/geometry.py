@@ -54,7 +54,7 @@ class CollisionGeometry:
         tuple
             Shape of batch dimensions.
         """
-        return ()
+        pass
 
 
 @dataclass
@@ -77,9 +77,7 @@ class Sphere(CollisionGeometry):
         return Sphere(center=new_center, radius=self.radius)
 
     def get_batch_axes(self):
-        if self.center.ndim > 1:
-            return self.center.shape[:-1]
-        return ()
+        pass
 
     @classmethod
     def from_center_and_radius(cls, center, radius):
@@ -97,7 +95,7 @@ class Sphere(CollisionGeometry):
         Sphere
             Sphere instance.
         """
-        return cls(center=np.asarray(center), radius=float(radius))
+        pass
 
 
 @dataclass
@@ -127,19 +125,17 @@ class Capsule(CollisionGeometry):
         return Capsule(p1=new_p1, p2=new_p2, radius=self.radius)
 
     def get_batch_axes(self):
-        if self.p1.ndim > 1:
-            return self.p1.shape[:-1]
-        return ()
+        pass
 
     @property
     def height(self):
         """Capsule height (distance between endpoints)."""
-        return np.linalg.norm(self.p2 - self.p1)
+        pass
 
     @property
     def center(self):
         """Capsule center (midpoint of segment)."""
-        return (self.p1 + self.p2) / 2
+        pass
 
     @property
     def axis(self):
@@ -170,13 +166,7 @@ class Capsule(CollisionGeometry):
         Capsule
             Capsule instance.
         """
-        center = np.asarray(center)
-        axis = np.asarray(axis)
-        axis = axis / (np.linalg.norm(axis) + 1e-10)
-        half_height = height / 2
-        p1 = center - half_height * axis
-        p2 = center + half_height * axis
-        return cls(p1=p1, p2=p2, radius=float(radius))
+        pass
 
     @classmethod
     def from_endpoints(cls, p1, p2, radius):
@@ -196,7 +186,7 @@ class Capsule(CollisionGeometry):
         Capsule
             Capsule instance.
         """
-        return cls(p1=np.asarray(p1), p2=np.asarray(p2), radius=float(radius))
+        pass
 
 
 @dataclass
@@ -227,9 +217,7 @@ class Box(CollisionGeometry):
                    rotation=new_rotation)
 
     def get_batch_axes(self):
-        if self.center.ndim > 1:
-            return self.center.shape[:-1]
-        return ()
+        pass
 
     @classmethod
     def from_center_and_extents(cls, center, extents, rotation=None):
@@ -249,11 +237,7 @@ class Box(CollisionGeometry):
         Box
             Box instance.
         """
-        center = np.asarray(center)
-        half_extents = np.asarray(extents) / 2
-        if rotation is not None:
-            rotation = np.asarray(rotation)
-        return cls(center=center, half_extents=half_extents, rotation=rotation)
+        pass
 
 
 @dataclass
@@ -295,10 +279,7 @@ class HalfSpace(CollisionGeometry):
         HalfSpace
             HalfSpace instance.
         """
-        point = np.asarray(point)
-        normal = np.asarray(normal)
-        normal = normal / (np.linalg.norm(normal) + 1e-10)
-        return cls(point=point, normal=normal)
+        pass
 
     @classmethod
     def ground_plane(cls, height=0.0):
@@ -314,4 +295,4 @@ class HalfSpace(CollisionGeometry):
         HalfSpace
             Ground plane half-space.
         """
-        return cls(point=np.array([0, 0, height]), normal=np.array([0, 0, 1]))
+        pass

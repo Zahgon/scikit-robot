@@ -72,134 +72,55 @@ class PR2(RobotModelFromURDF):
 
     @cached_property
     def default_urdf_path(self):
-        return pr2_urdfpath()
+        pass
 
     @cached_property
     def rarm(self):
-        rarm_links = [
-            self.r_shoulder_pan_link, self.r_shoulder_lift_link,
-            self.r_upper_arm_roll_link, self.r_elbow_flex_link,
-            self.r_forearm_roll_link, self.r_wrist_flex_link,
-            self.r_wrist_roll_link
-        ]
-
-        rarm_joints = []
-        for link in rarm_links:
-            rarm_joints.append(link.joint)
-        r = RobotModel(link_list=rarm_links, joint_list=rarm_joints)
-        r.end_coords = self.rarm_end_coords
-        return r
+        pass
 
     @cached_property
     def larm(self):
-        larm_links = [
-            self.l_shoulder_pan_link,
-            self.l_shoulder_lift_link,
-            self.l_upper_arm_roll_link,
-            self.l_elbow_flex_link,
-            self.l_forearm_roll_link,
-            self.l_wrist_flex_link,
-            self.l_wrist_roll_link,
-        ]
-        larm_joints = []
-        for link in larm_links:
-            larm_joints.append(link.joint)
-        r = RobotModel(link_list=larm_links, joint_list=larm_joints)
-        r.end_coords = self.larm_end_coords
-        return r
+        pass
 
     @cached_property
     def rarm_with_torso(self):
-        rarm_with_torso_links = [
-            self.torso_lift_link,
-            self.r_shoulder_pan_link, self.r_shoulder_lift_link,
-            self.r_upper_arm_roll_link, self.r_elbow_flex_link,
-            self.r_forearm_roll_link, self.r_wrist_flex_link,
-            self.r_wrist_roll_link
-        ]
-
-        rarm_with_torso_joints = []
-        for link in rarm_with_torso_links:
-            rarm_with_torso_joints.append(link.joint)
-        r = RobotModel(link_list=rarm_with_torso_links, joint_list=rarm_with_torso_joints)
-        r.end_coords = self.rarm_end_coords
-        return r
+        pass
 
     @cached_property
     def larm_with_torso(self):
-        larm_with_torso_links = [
-            self.torso_lift_link,
-            self.l_shoulder_pan_link,
-            self.l_shoulder_lift_link,
-            self.l_upper_arm_roll_link,
-            self.l_elbow_flex_link,
-            self.l_forearm_roll_link,
-            self.l_wrist_flex_link,
-            self.l_wrist_roll_link,
-        ]
-        larm_with_torso_joints = []
-        for link in larm_with_torso_links:
-            larm_with_torso_joints.append(link.joint)
-        r = RobotModel(link_list=larm_with_torso_links, joint_list=larm_with_torso_joints)
-        r.end_coords = self.larm_end_coords
-        return r
+        pass
 
     @cached_property
     def head(self):
-        links = [
-            self.head_pan_link,
-            self.head_tilt_link]
-        joints = []
-        for link in links:
-            joints.append(link.joint)
-        r = RobotModel(link_list=links, joint_list=joints)
-        r.end_coords = self.head_end_coords
-        return r
+        pass
 
     # New naming convention aliases (backward compatible)
     @property
     def right_arm(self):
-        return self.rarm
+        pass
 
     @property
     def left_arm(self):
-        return self.larm
+        pass
 
     @property
     def right_arm_with_torso(self):
-        return self.rarm_with_torso
+        pass
 
     @property
     def left_arm_with_torso(self):
-        return self.larm_with_torso
+        pass
 
     @property
     def right_arm_end_coords(self):
-        return self.rarm_end_coords
+        pass
 
     @property
     def left_arm_end_coords(self):
-        return self.larm_end_coords
+        pass
 
     def reset_manip_pose(self):
-        self.torso_lift_joint.joint_angle(0.3)
-        self.l_shoulder_pan_joint.joint_angle(np.deg2rad(75))
-        self.l_shoulder_lift_joint.joint_angle(np.deg2rad(50))
-        self.l_upper_arm_roll_joint.joint_angle(np.deg2rad(110))
-        self.l_elbow_flex_joint.joint_angle(np.deg2rad(-110))
-        self.l_forearm_roll_joint.joint_angle(np.deg2rad(-20))
-        self.l_wrist_flex_joint.joint_angle(np.deg2rad(-10))
-        self.l_wrist_roll_joint.joint_angle(np.deg2rad(-10))
-        self.r_shoulder_pan_joint.joint_angle(np.deg2rad(-75))
-        self.r_shoulder_lift_joint.joint_angle(np.deg2rad(50))
-        self.r_upper_arm_roll_joint.joint_angle(np.deg2rad(-110))
-        self.r_elbow_flex_joint.joint_angle(np.deg2rad(-110))
-        self.r_forearm_roll_joint.joint_angle(np.deg2rad(20))
-        self.r_wrist_flex_joint.joint_angle(np.deg2rad(-10))
-        self.r_wrist_roll_joint.joint_angle(np.deg2rad(-10))
-        self.head_pan_joint.joint_angle(0)
-        self.head_tilt_joint.joint_angle(np.deg2rad(50))
-        return self.angle_vector()
+        pass
 
     def reset_pose(self):
         self.torso_lift_joint.joint_angle(0.05)
@@ -242,32 +163,4 @@ class PR2(RobotModelFromURDF):
             - If arm is 'arms', returns a list of two floats
             [right_dist, left_dist].
         """
-        if arm in ('larm', 'left_arm'):
-            joints = [self.l_gripper_l_finger_joint]
-        elif arm in ('rarm', 'right_arm'):
-            joints = [self.r_gripper_l_finger_joint]
-        elif arm == 'arms':
-            joints = [self.r_gripper_l_finger_joint,
-                      self.l_gripper_l_finger_joint]
-        else:
-            raise ValueError('Invalid arm argument. You can specify '
-                             "'left_arm', 'right_arm', 'arms', 'larm', or 'rarm'.")
-
-        def _dist(angle):
-            return 0.0099 * (18.4586 * np.sin(angle) + np.cos(angle) - 1.0101)
-
-        if dist is not None:
-            # calculate joint_angle from approximated equation
-            max_dist = _dist(joints[0].max_angle)
-            dist = max(min(dist, max_dist), 0)
-            d = dist / 2.0
-            angle = 2 * np.arctan(
-                (9137 - np.sqrt(2)
-                 * np.sqrt(-5e9 * (d**2) - 5e7 * d + 41739897))
-                / (5 * (20000 * d + 199)))
-            for joint in joints:
-                joint.joint_angle(angle)
-        if arm == 'arms':
-            return [_dist(joint.joint_angle()) for joint in joints]
-        else:
-            return _dist(joints[0].joint_angle())
+        pass

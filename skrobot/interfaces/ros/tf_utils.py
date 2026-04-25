@@ -41,16 +41,7 @@ def coords_to_tf_pose(coords):
     pose : geometry_msgs.msg.Transform
         converted transform pose.
     """
-    pose = geometry_msgs.msg.Transform()
-    pose.translation.x = coords.translation[0]
-    pose.translation.y = coords.translation[1]
-    pose.translation.z = coords.translation[2]
-    q = coords.quaternion_wxyz
-    pose.rotation.w = q[0]
-    pose.rotation.x = q[1]
-    pose.rotation.y = q[2]
-    pose.rotation.z = q[3]
-    return pose
+    pass
 
 
 def tf_pose_to_coords(tf_pose):

@@ -172,7 +172,7 @@ def process_urdf(urdf_file, args):
             # for python3.6
             @contextlib.contextmanager
             def nullcontext(enter_result=None):
-                yield enter_result
+                pass
         force_visual_mesh_origin_to_zero_or_not = nullcontext
 
     # Store source URDF path for mesh resolution

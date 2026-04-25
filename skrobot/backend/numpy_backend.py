@@ -42,17 +42,17 @@ class NumpyBackend:
     @property
     def name(self) -> str:
         """Backend name."""
-        return 'numpy'
+        pass
 
     @property
     def supports_autodiff(self) -> bool:
         """NumPy uses numerical differentiation."""
-        return False
+        pass
 
     @property
     def supports_jit(self) -> bool:
         """NumPy does not support JIT."""
-        return False
+        pass
 
     # === Array Creation ===
 
@@ -142,7 +142,7 @@ class NumpyBackend:
 
     def expand_dims(self, arr: np.ndarray, axis: int) -> np.ndarray:
         """Expand dimensions."""
-        return np.expand_dims(arr, axis=axis)
+        pass
 
     # === Math Operations ===
 
@@ -160,7 +160,7 @@ class NumpyBackend:
         axis: Optional[int] = None,
     ) -> np.ndarray:
         """Sum of array elements."""
-        return np.sum(arr, axis=axis)
+        pass
 
     def mean(
         self,
@@ -209,7 +209,7 @@ class NumpyBackend:
 
     def exp(self, arr: np.ndarray) -> np.ndarray:
         """Exponential."""
-        return np.exp(arr)
+        pass
 
     def log(self, arr: np.ndarray) -> np.ndarray:
         """Natural logarithm."""
@@ -217,7 +217,7 @@ class NumpyBackend:
 
     def power(self, arr: np.ndarray, p: float) -> np.ndarray:
         """Element-wise power."""
-        return np.power(arr, p)
+        pass
 
     # === Linear Algebra ===
 
@@ -243,7 +243,7 @@ class NumpyBackend:
 
     def svd(self, arr: np.ndarray, full_matrices: bool = True):
         """Singular value decomposition."""
-        return np.linalg.svd(arr, full_matrices=full_matrices)
+        pass
 
     def eigh(self, arr: np.ndarray):
         """Eigenvalue decomposition for symmetric/Hermitian matrices."""
@@ -255,7 +255,7 @@ class NumpyBackend:
 
     def outer(self, a: np.ndarray, b: np.ndarray) -> np.ndarray:
         """Outer product."""
-        return np.outer(a, b)
+        pass
 
     def trace(self, arr: np.ndarray) -> np.ndarray:
         """Matrix trace."""
@@ -309,18 +309,7 @@ class NumpyBackend:
             Function that computes Jacobian matrix.
         """
         def jac_fn(x):
-            x = np.asarray(x, dtype=self._dtype)
-            f0 = fn(x)
-            f0 = np.atleast_1d(f0).flatten()
-            m = f0.size
-            n = x.size
-            jac = np.zeros((m, n), dtype=self._dtype)
-            for i in range(n):
-                x_plus = x.copy()
-                x_plus.flat[i] += eps
-                f_plus = np.atleast_1d(fn(x_plus)).flatten()
-                jac[:, i] = (f_plus - f0) / eps
-            return jac
+            pass
         return jac_fn
 
     def value_and_grad(self, fn: Callable, eps: float = 1e-7) -> Callable:
@@ -344,7 +333,7 @@ class NumpyBackend:
         grad_fn = self.gradient(fn, eps)
 
         def val_grad_fn(x, *args):
-            return fn(x, *args), grad_fn(x, *args)
+            pass
         return val_grad_fn
 
     def hessian(self, fn: Callable, eps: float = 1e-5) -> Callable:
@@ -362,36 +351,7 @@ class NumpyBackend:
         callable
             Function that computes Hessian matrix.
         """
-        def hess_fn(x):
-            x = np.asarray(x, dtype=self._dtype)
-            n = x.size
-            hess = np.zeros((n, n), dtype=self._dtype)
-
-            for i in range(n):
-                for j in range(i, n):
-                    x_pp = x.copy()
-                    x_pp.flat[i] += eps
-                    x_pp.flat[j] += eps
-
-                    x_pm = x.copy()
-                    x_pm.flat[i] += eps
-                    x_pm.flat[j] -= eps
-
-                    x_mp = x.copy()
-                    x_mp.flat[i] -= eps
-                    x_mp.flat[j] += eps
-
-                    x_mm = x.copy()
-                    x_mm.flat[i] -= eps
-                    x_mm.flat[j] -= eps
-
-                    hess[i, j] = (
-                        fn(x_pp) - fn(x_pm) - fn(x_mp) + fn(x_mm)
-                    ) / (4 * eps * eps)
-                    hess[j, i] = hess[i, j]
-
-            return hess
-        return hess_fn
+        pass
 
     # === Compilation and Vectorization ===
 
@@ -418,62 +378,7 @@ class NumpyBackend:
             Vectorized function.
         """
         def batched_fn(*args):
-            if len(args) == 0:
-                return fn()
-
-            # Normalize in_axes to a tuple
-            if isinstance(in_axes, int):
-                axes = (in_axes,) * len(args)
-            elif in_axes is None:
-                axes = (None,) * len(args)
-            else:
-                axes = tuple(in_axes)
-                if len(axes) < len(args):
-                    # Pad with 0 for remaining args
-                    axes = axes + (0,) * (len(args) - len(axes))
-
-            # Determine batch size from the first batched input
-            batch_size = None
-            for arg, axis in zip(args, axes):
-                if axis is not None:
-                    arg = np.asarray(arg)
-                    if arg.ndim > 0:
-                        batch_size = arg.shape[axis]
-                        break
-
-            if batch_size is None:
-                # No batched inputs, just call the function
-                return fn(*args)
-
-            # Move batch axis to front for all batched inputs
-            processed_args = []
-            for arg, axis in zip(args, axes):
-                arg = np.asarray(arg)
-                if axis is not None and axis != 0 and arg.ndim > 0:
-                    processed_args.append(np.moveaxis(arg, axis, 0))
-                else:
-                    processed_args.append(arg)
-
-            # Run function for each batch element
-            results = []
-            for i in range(batch_size):
-                batch_args = []
-                for arg, axis in zip(processed_args, axes):
-                    if axis is not None and np.asarray(arg).ndim > 0:
-                        batch_args.append(arg[i])
-                    else:
-                        batch_args.append(arg)  # Broadcast non-batched args
-                results.append(fn(*batch_args))
-
-            # Stack results
-            if isinstance(results[0], tuple):
-                # Multiple outputs
-                return tuple(
-                    np.stack([r[j] for r in results], axis=0)
-                    for j in range(len(results[0]))
-                )
-            else:
-                return np.stack(results, axis=0)
+            pass
         return batched_fn
 
     # === Control Flow ===
@@ -531,7 +436,7 @@ class NumpyBackend:
         axis: Optional[int] = None,
     ) -> np.ndarray:
         """Take elements from array along axis."""
-        return np.take(arr, indices, axis=axis)
+        pass
 
     def where(self, condition, x, y) -> np.ndarray:
         """Return elements from x or y depending on condition."""

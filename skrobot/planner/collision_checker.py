@@ -35,7 +35,7 @@ class SweptSphereSdfCollisionChecker(object):
         n_feature : int
             number of collision spheres.
         """
-        return len(self.coll_sphere_list)
+        pass
 
     def add_coll_spheres_to_viewer(self, viewer):
         """Add collision sheres to viewer
@@ -45,9 +45,7 @@ class SweptSphereSdfCollisionChecker(object):
         viewer : skrobot.viewers._trimesh.TrimeshSceneViewer
             viewer
         """
-
-        for s in self.coll_sphere_list:
-            viewer.add(s)
+        pass
 
     def delete_coll_spheres_from_viewer(self, viewer):
         """Delete collision sheres from viewer
@@ -57,8 +55,7 @@ class SweptSphereSdfCollisionChecker(object):
         viewer : skrobot.viewers._trimesh.TrimeshSceneViewer
             viewer
         """
-        for s in self.coll_sphere_list:
-            viewer.delete(s)
+        pass
 
     def add_collision_link(self, coll_link):
         """Add link for which collision with sdf is checked
@@ -71,35 +68,7 @@ class SweptSphereSdfCollisionChecker(object):
         coll_link : skrobot.model.Link
             link for which collision with sdf is checked
         """
-
-        if coll_link.name in self.coll_link_name_list:
-            return
-        self.coll_link_name_list.append(coll_link)
-
-        col_mesh = coll_link.collision_mesh
-        assert type(col_mesh) is trimesh.base.Trimesh
-
-        centers, R = compute_swept_sphere(col_mesh)
-        sphere_list = []
-        coords_list = []
-        for center in centers:
-            link_pos = coll_link.copy_worldcoords()
-            coll_coords = CascadedCoords(
-                pos=link_pos.worldpos(),
-                rot=link_pos.worldrot())
-            coll_coords.translate(center)
-            coll_link.assoc(coll_coords)
-            coords_list.append(coll_coords)
-
-            # add sphere
-            sp = Sphere(radius=R, pos=coll_coords.worldpos(),
-                        color=self.color_normal_sphere)
-            coll_coords.assoc(sp)
-            sphere_list.append(sp)
-
-        self.coll_sphere_list.extend(sphere_list)
-        self.coll_coords_list.extend(coords_list)
-        self.coll_radius_list.extend([R] * len(sphere_list))
+        pass
 
     def add_collision_links(self, coll_links):
         """Add links for which collisions with SDF is checked.
@@ -112,8 +81,7 @@ class SweptSphereSdfCollisionChecker(object):
         coll_links : list[skrobot.model.Link]
             link list for which collisions with sdf is checked.
         """
-        for coll_link in coll_links:
-            self.add_collision_link(coll_link)
+        pass
 
     def collision_check(self):
         """Check collision between links and collision spheres.
@@ -124,15 +92,7 @@ class SweptSphereSdfCollisionChecker(object):
             `True` if a collision occurred between any pair of links and
             collision spheres and `False` otherwise.
         """
-        joint_list = [j for j in self.robot_model.joint_list]
-        angle_vector = get_robot_config(
-            self.robot_model, joint_list, with_base=True)
-
-        dists, _ = self.compute_batch_sd_vals(
-            joint_list, np.array([angle_vector]),
-            with_base=True, with_jacobian=False)
-        idxes_collide = np.where(dists < 0)[0]
-        return len(idxes_collide) > 0
+        pass
 
     def update_color(self):  # for debugging
         """Update the color of links under collision
@@ -147,22 +107,7 @@ class SweptSphereSdfCollisionChecker(object):
         dists : numpy.ndarray(n_sphere,)
             array of the signed distances for each sphere against sdf.
         """
-
-        joint_list = [j for j in self.robot_model.joint_list]
-        angle_vector = get_robot_config(
-            self.robot_model, joint_list, with_base=True)
-
-        dists, _ = self.compute_batch_sd_vals(
-            joint_list, np.array([angle_vector]),
-            with_base=True, with_jacobian=False)
-        idxes_collide = np.where(dists < 0)[0]
-
-        for idx in range(self.n_feature):
-            sphere = self.coll_sphere_list[idx]
-            color = self.color_collision_sphere if idx in idxes_collide \
-                else self.color_normal_sphere
-            sphere.set_color(color)
-        return dists
+        pass
 
     def compute_batch_sd_vals(self,
                               joint_list,

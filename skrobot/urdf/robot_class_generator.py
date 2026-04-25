@@ -163,7 +163,7 @@ class PatternConfig:
         list of str
             List of patterns.
         """
-        return self._patterns.get(key, [])
+        pass
 
     def matches(self, key, text):
         """Check if text matches any pattern in category.
@@ -863,62 +863,7 @@ def _find_gripper_midpoint(link, link_map, config=None):
         {'parent_link': str, 'pos': list, 'rot': None}
         Otherwise None.
     """
-    if config is None:
-        config = get_default_config()
-
-    # If this is already a tool frame, don't try to find gripper midpoint
-    if _is_tool_frame(link.name, config):
-        return None
-
-    # Check if this looks like a finger link
-    # Note: 'gripper' alone is not enough - need actual finger patterns
-    if not config.matches('finger', link.name):
-        return None
-
-    # Get parent link
-    parent = link.parent_link
-    if parent is None:
-        return None
-
-    # Check if parent is a tool frame
-    if _is_tool_frame(parent.name, config):
-        return {
-            'parent_link': parent.name,
-            'pos': [0.0, 0.0, 0.0],
-            'rot': None,
-        }
-
-    # Find sibling finger links
-    sibling_fingers = []
-    if hasattr(parent, 'child_links'):
-        for child in parent.child_links:
-            if child is None or child is link:
-                continue
-            if config.matches('finger', child.name):
-                sibling_fingers.append(child)
-
-    if not sibling_fingers:
-        return None
-
-    # Calculate midpoint between fingertips using mesh geometry
-    all_fingertip_positions = [_get_fingertip_position(link)]
-    for sibling in sibling_fingers:
-        all_fingertip_positions.append(_get_fingertip_position(sibling))
-
-    midpoint_world = np.mean(all_fingertip_positions, axis=0)
-
-    # Convert to parent's local frame
-    parent_pos = parent.worldpos()
-    parent_rot_inv = parent.worldrot().T
-    midpoint_local = parent_rot_inv.dot(midpoint_world - parent_pos)
-    midpoint_local = [round(v, 6) if abs(v) > 1e-6 else 0.0
-                      for v in midpoint_local]
-
-    return {
-        'parent_link': parent.name,
-        'pos': midpoint_local,
-        'rot': None,
-    }
+    pass
 
 
 # ============================================================================

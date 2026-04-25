@@ -77,17 +77,17 @@ class JaxBackend:
     @property
     def name(self) -> str:
         """Backend name."""
-        return 'jax'
+        pass
 
     @property
     def supports_autodiff(self) -> bool:
         """JAX supports automatic differentiation."""
-        return True
+        pass
 
     @property
     def supports_jit(self) -> bool:
         """JAX supports JIT compilation."""
-        return True
+        pass
 
     # === Array Creation ===
 
@@ -165,8 +165,7 @@ class JaxBackend:
 
     def expand_dims(self, arr, axis: int):
         """Expand dimensions."""
-        _ensure_jax()
-        return _jnp.expand_dims(arr, axis=axis)
+        pass
 
     # === Math Operations ===
 
@@ -182,8 +181,7 @@ class JaxBackend:
 
     def sum(self, arr, axis: Optional[int] = None):
         """Sum of array elements."""
-        _ensure_jax()
-        return _jnp.sum(arr, axis=axis)
+        pass
 
     def mean(self, arr, axis: Optional[int] = None):
         """Mean of array elements."""
@@ -232,8 +230,7 @@ class JaxBackend:
 
     def exp(self, arr):
         """Exponential."""
-        _ensure_jax()
-        return _jnp.exp(arr)
+        pass
 
     def log(self, arr):
         """Natural logarithm."""
@@ -242,8 +239,7 @@ class JaxBackend:
 
     def power(self, arr, p: float):
         """Element-wise power."""
-        _ensure_jax()
-        return _jnp.power(arr, p)
+        pass
 
     # === Linear Algebra ===
 
@@ -269,8 +265,7 @@ class JaxBackend:
 
     def svd(self, arr, full_matrices: bool = True):
         """Singular value decomposition."""
-        _ensure_jax()
-        return _jnp.linalg.svd(arr, full_matrices=full_matrices)
+        pass
 
     def eigh(self, arr):
         """Eigenvalue decomposition for symmetric/Hermitian matrices."""
@@ -284,8 +279,7 @@ class JaxBackend:
 
     def outer(self, a, b):
         """Outer product."""
-        _ensure_jax()
-        return _jnp.outer(a, b)
+        pass
 
     def trace(self, arr):
         """Matrix trace."""
@@ -355,8 +349,7 @@ class JaxBackend:
         callable
             Function that computes Hessian matrix.
         """
-        _ensure_jax()
-        return _jax.hessian(fn)
+        pass
 
     # === Compilation and Vectorization ===
 
@@ -486,8 +479,7 @@ class JaxBackend:
 
     def take(self, arr, indices, axis: Optional[int] = None):
         """Take elements from array along axis."""
-        _ensure_jax()
-        return _jnp.take(arr, indices, axis=axis)
+        pass
 
     def where(self, condition, x, y):
         """Return elements from x or y depending on condition."""
@@ -511,7 +503,7 @@ class JaxBackend:
         array
             New array with updated values.
         """
-        return arr.at[indices].set(values)
+        pass
 
     def at_add(self, arr, indices, values):
         """Functional array addition (JAX-style).
@@ -530,4 +522,4 @@ class JaxBackend:
         array
             New array with added values.
         """
-        return arr.at[indices].add(values)
+        pass

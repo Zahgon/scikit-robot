@@ -162,7 +162,7 @@ class BackendRegistry:
     @classmethod
     def clear_cache(cls) -> None:
         """Clear the instance cache."""
-        cls._instance_cache.clear()
+        pass
 
 
 # Convenience functions

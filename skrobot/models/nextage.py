@@ -44,7 +44,7 @@ class Nextage(RobotModelFromURDF):
 
     @cached_property
     def default_urdf_path(self):
-        return nextage_urdfpath()
+        pass
 
     def reset_pose(self):
         angle_vector = [
@@ -69,56 +69,37 @@ class Nextage(RobotModelFromURDF):
 
     def reset_manip_pose(self):
         """Reset robot to manipulation pose (same as reset_pose for Nextage)"""
-        return self.reset_pose()
+        pass
 
     @cached_property
     def rarm(self):
-        link_names = ["RARM_JOINT{}_Link".format(i) for i in range(6)]
-        links = [getattr(self, n) for n in link_names]
-        joints = [l.joint for l in links]
-        model = RobotModel(link_list=links, joint_list=joints)
-        model.end_coords = self.rarm_end_coords
-        return model
+        pass
 
     @cached_property
     def larm(self):
-        link_names = ["LARM_JOINT{}_Link".format(i) for i in range(6)]
-        links = [getattr(self, n) for n in link_names]
-        joints = [l.joint for l in links]
-        model = RobotModel(link_list=links, joint_list=joints)
-        model.end_coords = self.larm_end_coords
-        return model
+        pass
 
     @cached_property
     def head(self):
-        link_names = ["HEAD_JOINT{}_Link".format(i) for i in range(2)]
-        links = [getattr(self, n) for n in link_names]
-        joints = [l.joint for l in links]
-        model = RobotModel(link_list=links, joint_list=joints)
-        model.end_coords = self.head_end_coords
-        return model
+        pass
 
     @cached_property
     def torso(self):
-        link_names = ["CHEST_JOINT0_Link"]
-        links = [getattr(self, n) for n in link_names]
-        joints = [l.joint for l in links]
-        model = RobotModel(link_list=links, joint_list=joints)
-        return model
+        pass
 
     # New naming convention aliases (backward compatible)
     @property
     def right_arm(self):
-        return self.rarm
+        pass
 
     @property
     def left_arm(self):
-        return self.larm
+        pass
 
     @property
     def right_arm_end_coords(self):
-        return self.rarm_end_coords
+        pass
 
     @property
     def left_arm_end_coords(self):
-        return self.larm_end_coords
+        pass

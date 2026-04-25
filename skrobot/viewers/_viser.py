@@ -150,7 +150,7 @@ class ViserViewer:
 
     @property
     def is_active(self) -> bool:
-        return self._is_active
+        pass
 
     def close(self):
         self._is_active = False
@@ -405,7 +405,7 @@ class ViserViewer:
 
                 def make_visibility_callback(ctrl, checkbox):
                     def callback(_):
-                        ctrl.visible = checkbox.value
+                        pass
                     return callback
 
                 visibility_checkbox.on_update(
@@ -479,9 +479,7 @@ class ViserViewer:
 
                     def make_manip_visibility_callback(ellipse, checkbox):
                         def callback(_):
-                            ellipse.set_visibility(checkbox.value)
-                            if checkbox.value:
-                                ellipse.update()
+                            pass
                         return callback
 
                     manip_checkbox.on_update(
@@ -490,7 +488,7 @@ class ViserViewer:
 
                     def make_manip_scale_callback(ellipse, slider):
                         def callback(_):
-                            ellipse.set_scaling_factor(slider.value)
+                            pass
                         return callback
 
                     manip_scale.on_update(
@@ -514,7 +512,7 @@ class ViserViewer:
                 # Callback for when control is moved (updates numeric inputs)
                 def make_ik_callback(rid, gname):
                     def callback(_):
-                        self._solve_ik(rid, gname)
+                        pass
                     return callback
 
                 control.on_update(make_ik_callback(robot_id, group_name))
@@ -522,7 +520,7 @@ class ViserViewer:
                 # Callback for numeric input changes
                 def make_numeric_ik_callback(rid, gname):
                     def callback(_):
-                        self._solve_ik_from_numeric(rid, gname)
+                        pass
                     return callback
 
                 numeric_callback = make_numeric_ik_callback(robot_id, group_name)
@@ -827,54 +825,7 @@ class ViserViewer:
         end_coords = target['end_coords']
 
         def _create_solver_background():
-            try:
-                from skrobot.kinematics.differentiable import create_batch_ik_solver
-                print(f"[Batch IK] Creating JAX solver for {group_name}...")
-                t0 = time.time()
-                solver = create_batch_ik_solver(
-                    robot_model, link_list, end_coords,
-                    backend_name='jax',
-                )
-                t1 = time.time()
-                print(f"[Batch IK] Solver created "
-                      f"({(t1 - t0) * 1000:.0f}ms), warming up JIT...")
-
-                dummy_pos = warmup_pos.reshape(1, 3)
-                dummy_rot = warmup_rot.reshape(1, 3, 3)
-                dummy_angles = warmup_angles.reshape(1, -1)
-                warmup_attempts = 50
-                warmup_kwargs = dict(
-                    max_iterations=20, damping=0.01,
-                    pos_threshold=0.01,
-                    attempts_per_pose=warmup_attempts,
-                )
-
-                t2 = time.time()
-                solver(dummy_pos, dummy_rot,
-                       initial_angles=dummy_angles,
-                       rotation_mask=True, **warmup_kwargs)
-                t3 = time.time()
-                print(f"[Batch IK] JIT warmup 1/2 "
-                      f"({(t3 - t2) * 1000:.0f}ms)")
-
-                solver(dummy_pos, dummy_rot,
-                       initial_angles=dummy_angles,
-                       rotation_mask=False, **warmup_kwargs)
-                t4 = time.time()
-                print(f"[Batch IK] JIT warmup 2/2 "
-                      f"({(t4 - t3) * 1000:.0f}ms)")
-                print(f"[Batch IK] Solver ready for {group_name} "
-                      f"(total: {(t4 - t0) * 1000:.0f}ms)")
-
-                with self._ik_lock:
-                    if robot_id not in self._batch_ik_solvers:
-                        self._batch_ik_solvers[robot_id] = {}
-                    self._batch_ik_solvers[robot_id][group_name] = solver
-                    self._solver_creating_keys.discard(solver_key)
-            except Exception as e:
-                print(f"[Batch IK] Failed to create solver: {e}")
-                with self._ik_lock:
-                    self._solver_creating_keys.discard(solver_key)
+            pass
 
         thread = threading.Thread(
             target=_create_solver_background, daemon=True)
@@ -1318,108 +1269,25 @@ class ViserViewer:
 
         # Add obstacle button callback
         def on_add_obstacle(_):
-            obs_type = self._obstacle_type_dropdown.value
-            pos = [
-                self._obs_pos_x.value,
-                self._obs_pos_y.value,
-                self._obs_pos_z.value,
-            ]
-            color = list(self._obs_color.value)
-
-            self._obstacle_counter += 1
-            name = f"{obs_type}_{self._obstacle_counter}"
-
-            if obs_type == "Sphere":
-                obstacle = Sphere(
-                    radius=self._obs_radius.value,
-                    pos=pos,
-                    color=color,
-                    name=name,
-                )
-            elif obs_type == "Box":
-                obstacle = Box(
-                    extents=[
-                        self._obs_size_x.value,
-                        self._obs_size_y.value,
-                        self._obs_size_z.value,
-                    ],
-                    pos=pos,
-                    face_colors=color + [255],
-                    name=name,
-                )
-            elif obs_type == "Cylinder":
-                obstacle = Cylinder(
-                    radius=self._obs_radius.value,
-                    height=self._obs_height.value,
-                    pos=pos,
-                    color=color,
-                    name=name,
-                )
-            else:
-                return
-
-            # Add to viewer
-            self.add(obstacle)
-
-            # Store obstacle reference
-            link_id = str(id(obstacle))
-            self._managed_obstacles[name] = {
-                'link': obstacle,
-                'link_id': link_id,
-                'type': obs_type,
-            }
-
-            # Update dropdown
-            self._update_obstacle_list_dropdown()
-
-            # Select the newly added obstacle
-            self._obstacle_list_dropdown.value = name
-            self._select_obstacle(name)
+            pass
 
         add_obs_btn.on_click(on_add_obstacle)
 
         # Delete obstacle button callback
         def on_delete_obstacle(_):
-            if self._selected_obstacle is None:
-                return
-            name = self._selected_obstacle
-            if name not in self._managed_obstacles:
-                return
-
-            obstacle_info = self._managed_obstacles[name]
-            link = obstacle_info['link']
-
-            # Remove transform control if exists
-            self._remove_obstacle_transform_control()
-
-            # Delete from viewer
-            self.delete(link)
-
-            # Remove from managed obstacles
-            del self._managed_obstacles[name]
-            self._selected_obstacle = None
-
-            # Update dropdown
-            self._update_obstacle_list_dropdown()
+            pass
 
         delete_obs_btn.on_click(on_delete_obstacle)
 
         # Obstacle selection callback
         def on_obstacle_selected(_):
-            selected = self._obstacle_list_dropdown.value
-            if selected == "(none)":
-                self._remove_obstacle_transform_control()
-                self._selected_obstacle = None
-            else:
-                self._select_obstacle(selected)
+            pass
 
         self._obstacle_list_dropdown.on_update(on_obstacle_selected)
 
         # Collision visualization callbacks
         def on_collision_viz_change(_):
-            enabled = self._collision_viz_checkbox.value
-            threshold = self._collision_threshold.value
-            self.enable_collision_visualization(enabled, threshold)
+            pass
 
         self._collision_viz_checkbox.on_update(on_collision_viz_change)
         self._collision_threshold.on_update(on_collision_viz_change)
@@ -1500,8 +1368,7 @@ class ViserViewer:
             )
 
             def on_group_change(_):
-                val = self._mp_group_dropdown.value
-                self._selected_planning_group = None if val == "(none)" else val
+                pass
 
             self._mp_group_dropdown.on_update(on_group_change)
 
@@ -1529,8 +1396,7 @@ class ViserViewer:
 
                 @self._mp_n_points.on_update
                 def _on_n_points_change(_):
-                    self._warmup_config_hash = None
-                    self._trigger_solver_warmup()
+                    pass
 
                 self._mp_smoothness_weight = self._server.gui.add_number(
                     "Smoothness Weight",
@@ -1557,11 +1423,7 @@ class ViserViewer:
                 @self._mp_solver_dropdown.on_update
                 def _on_solver_change(_):
                     # Invalidate warmup cache when solver changes
-                    self._warmup_config_hash = None
-                    self._cached_mp_solver = None
-                    self._cached_mp_solver_type = None
-                    # Trigger warmup for compatible solvers
-                    self._trigger_solver_warmup()
+                    pass
 
                 self._mp_self_collision = self._server.gui.add_checkbox(
                     "Self-Collision", initial_value=True,
@@ -1569,8 +1431,7 @@ class ViserViewer:
 
                 @self._mp_self_collision.on_update
                 def _on_self_collision_change(_):
-                    self._warmup_config_hash = None
-                    self._trigger_solver_warmup()
+                    pass
 
                 self._mp_cartesian_interp = self._server.gui.add_checkbox(
                     "Cartesian Interpolation", initial_value=False,
@@ -1578,8 +1439,7 @@ class ViserViewer:
 
                 @self._mp_cartesian_interp.on_update
                 def _on_cartesian_change(_):
-                    self._warmup_config_hash = None
-                    self._trigger_solver_warmup()
+                    pass
 
                 self._mp_cartesian_weight = self._server.gui.add_number(
                     "Cartesian Path Weight",
@@ -1598,8 +1458,7 @@ class ViserViewer:
 
                 @self._mp_task_space_wp.on_update
                 def _on_task_space_wp_change(_):
-                    self._warmup_config_hash = None
-                    self._trigger_solver_warmup()
+                    pass
 
                 self._mp_ee_wp_pos_weight = self._server.gui.add_number(
                     "EE Waypoint Pos Weight",
@@ -1710,15 +1569,7 @@ class ViserViewer:
 
                         def make_callback(j, rid):
                             def callback(_):
-                                if self._updating_from_ik:
-                                    return
-                                if self._updating_slider_limits:
-                                    return
-                                j.joint_angle(self._joint_sliders[j.name].value)
-                                self.redraw()
-                                self._sync_ik_targets(rid)
-                                self._update_all_manipulability_ellipses(rid)
-                                self._update_dynamic_joint_limits(rid)
+                                pass
                             return callback
 
                         slider.on_update(make_callback(joint, robot_id))
@@ -1756,29 +1607,7 @@ class ViserViewer:
             )
 
         def generate_code_callback(_):
-            prefix = self._export_prefix.value
-            lines = []
-            # Generate code for all robot models
-            for robot_model in self._robot_models.values():
-                for joint in robot_model.joint_list:
-                    if isinstance(joint, FixedJoint):
-                        continue
-                    if joint.name not in self._joint_sliders:
-                        continue
-                    angle = joint.joint_angle()
-                    # Format angle nicely
-                    angle_deg = np.rad2deg(angle)
-                    # Use np.deg2rad for cleaner code if angle is a nice degree value
-                    if abs(angle_deg - round(angle_deg)) < 0.01:
-                        angle_deg_int = int(round(angle_deg))
-                        if angle_deg_int == 0:
-                            angle_str = "0"
-                        else:
-                            angle_str = f"np.deg2rad({angle_deg_int})"
-                    else:
-                        angle_str = f"{angle:.6f}"
-                    lines.append(f"{prefix}{joint.name}.joint_angle({angle_str})")
-            self._export_code_text.value = "\n".join(lines)
+            pass
 
         generate_button.on_click(generate_code_callback)
 
@@ -1793,84 +1622,7 @@ class ViserViewer:
         list
             List of obstacle dicts with 'type', 'center', 'radius'.
         """
-        from skrobot.model.primitives import Box
-        from skrobot.model.primitives import Cylinder
-
-        obstacles = []
-        # Track robot model link IDs so we skip them
-        robot_link_ids = set()
-        for robot_model in self._robot_models.values():
-            for link in robot_model.link_list:
-                robot_link_ids.add(str(id(link)))
-
-        for link_id, link in self._linkid_to_link.items():
-            if link_id in robot_link_ids:
-                continue
-            if isinstance(link, Sphere):
-                obstacles.append({
-                    'type': 'sphere',
-                    'center': link.worldpos().tolist(),
-                    'radius': float(link.radius),
-                })
-            elif isinstance(link, Box):
-                # Sphere decomposition for Box
-                # Use smaller spheres at corners and center for better coverage
-                half_extents = np.array(link.extents) / 2
-                world_pos = link.worldpos()
-                world_rot = link.worldrot()
-
-                # Sphere radius: use smallest half-extent
-                sphere_radius = float(np.min(half_extents))
-
-                # Generate sphere centers at strategic points
-                # Center sphere
-                obstacles.append({
-                    'type': 'sphere',
-                    'center': world_pos.tolist(),
-                    'radius': sphere_radius,
-                })
-
-                # Spheres along each axis (6 spheres on faces)
-                for axis in range(3):
-                    for sign in [-1, 1]:
-                        local_offset = np.zeros(3)
-                        local_offset[axis] = sign * (
-                            half_extents[axis] - sphere_radius * 0.5)
-                        world_offset = world_rot @ local_offset
-                        center = world_pos + world_offset
-                        obstacles.append({
-                            'type': 'sphere',
-                            'center': center.tolist(),
-                            'radius': sphere_radius,
-                        })
-
-            elif isinstance(link, Cylinder):
-                # Sphere decomposition for Cylinder
-                # Place spheres along the cylinder axis
-                half_h = link.height / 2
-                cyl_radius = link.radius
-                world_pos = link.worldpos()
-                world_rot = link.worldrot()
-
-                # Use cylinder radius as sphere radius
-                sphere_radius = float(cyl_radius)
-
-                # Number of spheres along height
-                n_spheres = max(2, int(np.ceil(link.height / cyl_radius)))
-
-                for i in range(n_spheres):
-                    # Position along Z axis (cylinder axis)
-                    t = -half_h + (i + 0.5) * link.height / n_spheres
-                    local_offset = np.array([0.0, 0.0, t])
-                    world_offset = world_rot @ local_offset
-                    center = world_pos + world_offset
-                    obstacles.append({
-                        'type': 'sphere',
-                        'center': center.tolist(),
-                        'radius': sphere_radius,
-                    })
-
-        return obstacles
+        pass
 
     def _build_collision_spheres_cache(self, n_spheres_per_link=3):
         """Build cache of collision spheres in local coordinates.
@@ -2209,79 +1961,7 @@ class ViserViewer:
             Target EE rotation matrices (total_points, 3, 3) for Cartesian
             path cost.
         """
-        from skrobot.coordinates import Coordinates
-        from skrobot.coordinates.base import slerp_coordinates
-
-        with self._preserved_angle_vector(robot_model, update_links=False):
-            # Compute end-effector pose at each waypoint
-            wp_coords = []
-            for i, angles in enumerate(waypoint_angles):
-                for link, angle in zip(link_list, angles):
-                    link.joint.joint_angle(angle)
-                pos = move_target.worldpos().copy()
-                rot = move_target.worldrot().copy()
-                wp_coords.append(Coordinates(pos=pos, rot=rot))
-
-            # Build interpolated Cartesian poses for all segments
-            all_target_coords = []
-            all_target_positions = []
-            all_target_rotations = []
-            all_initial_group_angles = []
-            for seg_idx in range(n_segments):
-                c_start = wp_coords[seg_idx]
-                c_end = wp_coords[seg_idx + 1]
-                ga_start = waypoint_angles[seg_idx]
-                ga_end = waypoint_angles[seg_idx + 1]
-                for j in range(points_per_seg):
-                    if seg_idx > 0 and j == 0:
-                        continue
-                    t = j / max(points_per_seg - 1, 1)
-                    interp_c = slerp_coordinates(c_start, c_end, t)
-                    all_target_coords.append(interp_c)
-                    all_target_positions.append(interp_c.worldpos().copy())
-                    all_target_rotations.append(interp_c.worldrot().copy())
-                    all_initial_group_angles.append(
-                        ga_start + t * (ga_end - ga_start)
-                    )
-
-            target_ee_positions = np.array(all_target_positions)
-            target_ee_rotations = np.array(all_target_rotations)
-
-            # Solve IK for all interpolated poses at once
-            initial_angles_array = np.array(all_initial_group_angles)
-            solutions, success_flags, _ = robot_model.batch_inverse_kinematics(
-                all_target_coords,
-                move_target=move_target,
-                link_list=link_list,
-                initial_angles=initial_angles_array,
-                stop=50,
-                thre=0.005,
-                rthre=np.deg2rad(5.0),
-                attempts_per_pose=1,
-            )
-
-            # Extract group joint angles from solutions
-            n_joints = len(link_list)
-            total_points = len(all_target_coords)
-            initial_traj = np.zeros((total_points, n_joints))
-            joint_indices = [
-                robot_model.joint_list.index(link.joint)
-                for link in link_list
-            ]
-            for i, (sol, success) in enumerate(
-                zip(solutions, success_flags)
-            ):
-                if success:
-                    initial_traj[i] = sol[joint_indices]
-                else:
-                    initial_traj[i] = all_initial_group_angles[i]
-
-            # Force start/end to exact waypoint angles so that the
-            # solver cache key is deterministic across repeated plans.
-            initial_traj[0] = waypoint_angles[0]
-            initial_traj[-1] = waypoint_angles[-1]
-
-        return initial_traj, target_ee_positions, target_ee_rotations
+        pass
 
     def _get_warmup_config_hash(self):
         """Generate a hash of current planning configuration for warmup."""
@@ -2335,131 +2015,7 @@ class ViserViewer:
 
     def _warmup_solver_background(self):
         """Warmup solver JIT compilation in background thread."""
-        try:
-            import numpy as np
-
-            from skrobot.planner.trajectory_optimization import TrajectoryProblem
-            from skrobot.planner.trajectory_optimization.solvers import create_solver
-
-            if not self._robot_models:
-                return
-
-            robot_id = next(iter(self._robot_models))
-            robot_model = self._robot_models[robot_id]
-
-            # Get planning group
-            group_name = self._selected_planning_group
-            if not group_name or robot_id not in self._ik_targets:
-                return
-
-            target = self._ik_targets[robot_id].get(group_name)
-            if target is None:
-                return
-
-            link_list = target['link_list']
-            move_target = target['end_coords']
-            len(link_list)
-
-            # Get GUI parameters
-            n_segments = len(self._waypoints) - 1
-            points_per_seg = int(self._mp_n_points.value)
-            total_points = (points_per_seg - 1) * n_segments + 1
-            solver_type = self._mp_solver_dropdown.value
-            smoothness_w = float(self._mp_smoothness_weight.value)
-            collision_w = float(self._mp_collision_weight.value)
-            use_self_collision = self._mp_self_collision.value
-            use_cartesian = self._mp_cartesian_interp.value
-            use_task_space_wp = self._mp_task_space_wp.value
-            max_iters = int(self._mp_max_iterations.value)
-
-            # Create a minimal problem with same structure
-            problem = TrajectoryProblem(
-                robot_model=robot_model,
-                link_list=link_list,
-                n_waypoints=total_points,
-                dt=0.1,
-                move_target=move_target,
-            )
-
-            problem.add_smooth_trajectory_costs(
-                weight=smoothness_w,
-                use_high_precision=True,
-            )
-
-            # Add joint velocity limit to prevent large jumps between waypoints
-            # Scale=0.3 limits to 30% of max velocity for smoother trajectories
-            problem.add_joint_velocity_limit(scale=0.3)
-
-            # Add collision cost if obstacles exist
-            if self._obstacle_link_ids and collision_w > 0:
-                # Use dummy obstacles for warmup
-                dummy_obstacles = [{
-                    'type': 'sphere',
-                    'center': [0.0, 0.0, -10.0],
-                    'radius': 0.01,
-                }]
-                problem.add_collision_cost(
-                    collision_link_list=link_list,
-                    world_obstacles=dummy_obstacles,
-                    weight=collision_w,
-                    activation_distance=0.05,
-                )
-                if use_self_collision:
-                    # Use soft cost for self-collision for smoother trajectories
-                    problem.add_self_collision_cost(
-                        weight=collision_w,
-                        activation_distance=0.02,
-                        as_constraint=False,  # Soft cost for smoother trajectories
-                    )
-
-            # Add cartesian path cost structure if enabled
-            if use_cartesian and move_target is not None:
-                ee_pos = move_target.worldpos()
-                ee_rot = move_target.worldrot()
-                dummy_positions = np.tile(ee_pos, (total_points, 1))
-                dummy_rotations = np.tile(ee_rot, (total_points, 1, 1))
-                problem.add_cartesian_path_cost(
-                    target_positions=dummy_positions,
-                    target_rotations=dummy_rotations,
-                    weight=1000.0,
-                    rotation_weight=1.0,
-                )
-
-            # Add EE waypoint costs if task-space waypoints enabled
-            if use_task_space_wp and move_target is not None:
-                problem.set_fixed_endpoints(start=True, end=False)
-                ee_pos = move_target.worldpos()
-                ee_rot = move_target.worldrot()
-                problem.add_ee_waypoint_cost(
-                    total_points - 1,
-                    ee_pos, ee_rot,
-                    position_weight=100.0,
-                    rotation_weight=10.0,
-                )
-
-            # Create solver and do warmup solve
-            solver = create_solver(
-                solver_type, max_iterations=max_iters, verbose=False
-            )
-
-            # Create dummy initial trajectory
-            start_angles = np.array([
-                link.joint.joint_angle() for link in link_list
-            ])
-            initial_traj = np.tile(start_angles, (total_points, 1))
-
-            # Do warmup solve (triggers JIT compilation)
-            solver.solve(problem, initial_traj)
-
-            # Cache the warmed-up solver
-            with self._mp_lock:
-                self._cached_mp_solver = solver
-                self._cached_mp_solver_type = solver_type
-
-        except Exception as e:
-            print(f"[Warmup] Warning: {e}")
-        finally:
-            self._warmup_in_progress = False
+        pass
 
     def _start_planning(self):
         """Start trajectory planning in a background thread."""
@@ -2481,307 +2037,7 @@ class ViserViewer:
 
     def _plan_trajectory(self):
         """Execute trajectory planning between waypoints (runs in background thread)."""
-        try:
-            from skrobot.planner.trajectory_optimization import TrajectoryProblem
-            from skrobot.planner.trajectory_optimization.solvers import create_solver
-            from skrobot.planner.trajectory_optimization.trajectory import interpolate_trajectory
-
-            if not self._robot_models:
-                return
-
-            robot_id = next(iter(self._robot_models))
-            robot_model = self._robot_models[robot_id]
-
-            # Determine link_list and move_target from selected planning group
-            link_list = None
-            move_target = None
-            group_name = self._selected_planning_group
-
-            if group_name and robot_id in self._ik_targets:
-                target = self._ik_targets[robot_id].get(group_name)
-                if target is not None:
-                    link_list = target['link_list']
-                    move_target = target['end_coords']
-
-            if link_list is None:
-                # Fallback: use the first available IK group
-                if robot_id in self._ik_targets and self._ik_targets[robot_id]:
-                    first_group = next(iter(self._ik_targets[robot_id]))
-                    target = self._ik_targets[robot_id][first_group]
-                    link_list = target['link_list']
-                    move_target = target['end_coords']
-                    group_name = first_group
-
-            if link_list is None:
-                self._mp_status_text.content = "**No planning group available**"
-                self._is_planning = False
-                return
-
-            # Get planning parameters from GUI
-            n_points = int(self._mp_n_points.value)
-            smoothness_w = float(self._mp_smoothness_weight.value)
-            collision_w = float(self._mp_collision_weight.value)
-            max_iters = int(self._mp_max_iterations.value)
-            solver_type = self._mp_solver_dropdown.value
-            use_self_collision = self._mp_self_collision.value
-            use_cartesian = self._mp_cartesian_interp.value
-            use_posture_reg = self._mp_posture_reg.value
-            posture_w = float(self._mp_posture_weight.value)
-            use_task_space_wp = self._mp_task_space_wp.value
-            ee_wp_pos_w = float(self._mp_ee_wp_pos_weight.value)
-            ee_wp_rot_w = float(self._mp_ee_wp_rot_weight.value)
-
-            # Extract group joint angles for each waypoint
-            waypoint_angles = []
-            for wp in self._waypoints:
-                if group_name in wp['group_angles']:
-                    waypoint_angles.append(wp['group_angles'][group_name])
-                else:
-                    # Extract from full angle_vector
-                    with self._preserved_angle_vector(
-                        robot_model, update_links=False
-                    ):
-                        robot_model.angle_vector(wp['angle_vector'])
-                        angles = np.array(
-                            [link.joint.joint_angle() for link in link_list]
-                        )
-                        waypoint_angles.append(angles)
-
-            # When task-space waypoints are enabled, re-solve IK for
-            # non-start waypoints using the nominal pose (start angles)
-            # as seed so the optimizer begins from a posture-friendly
-            # configuration.
-            ee_wp_targets = {}  # wp_index -> {pos, rot}
-            if use_task_space_wp and move_target is not None:
-                from skrobot.coordinates import Coordinates
-
-                nominal_angles = waypoint_angles[0]
-
-                # Compute EE poses for all non-start waypoints
-                target_coords_list = []
-                wp_indices = list(range(1, len(waypoint_angles)))
-                with self._preserved_angle_vector(
-                    robot_model, update_links=False
-                ):
-                    for wp_i in wp_indices:
-                        for link, angle in zip(
-                            link_list, waypoint_angles[wp_i]
-                        ):
-                            link.joint.joint_angle(angle)
-                        ee_pos = move_target.worldpos().copy()
-                        ee_rot = move_target.worldrot().copy()
-                        ee_wp_targets[wp_i] = {
-                            'pos': ee_pos, 'rot': ee_rot,
-                        }
-                        target_coords_list.append(
-                            Coordinates(pos=ee_pos, rot=ee_rot))
-
-                # Build initial angles: full robot angle_vector with
-                # group joints set to nominal pose
-                joint_indices = [
-                    robot_model.joint_list.index(link.joint)
-                    for link in link_list
-                ]
-                nominal_av = robot_model.angle_vector().copy()
-                for idx, val in zip(joint_indices, nominal_angles):
-                    nominal_av[idx] = val
-                init_angles_batch = np.tile(
-                    nominal_av, (len(target_coords_list), 1))
-
-                try:
-                    solutions, success_flags, _ = \
-                        robot_model.batch_inverse_kinematics(
-                            target_coords_list,
-                            move_target=move_target,
-                            link_list=link_list,
-                            initial_angles=init_angles_batch,
-                            stop=50,
-                            thre=0.005,
-                            rthre=np.deg2rad(5.0),
-                            attempts_per_pose=10,
-                        )
-                    for i, (sol, ok) in enumerate(
-                        zip(solutions, success_flags)
-                    ):
-                        wp_i = wp_indices[i]
-                        if ok:
-                            waypoint_angles[wp_i] = sol[joint_indices]
-                except Exception as e:
-                    print(f"[Motion Planning] Batch IK failed: {e}")
-
-            # Detect world obstacles
-            world_obstacles = self._detect_world_obstacles()
-
-            # Determine collision link list (use the planning group's links)
-            coll_link_list = list(link_list)
-
-            # Build a single trajectory spanning all waypoints.
-            # Intermediate waypoints are pinned via equality constraints
-            # so that only one analyze()+solve() call is needed.
-            n_segments = len(waypoint_angles) - 1
-            points_per_seg = n_points
-            total_points = (points_per_seg - 1) * n_segments + 1
-
-            # Build initial trajectory
-            cartesian_target_positions = None
-            cartesian_target_rotations = None
-            if use_cartesian and move_target is not None:
-                initial_traj, cartesian_target_positions, \
-                    cartesian_target_rotations = \
-                    self._build_cartesian_initial_trajectory(
-                        robot_model, link_list, move_target,
-                        waypoint_angles, n_segments, points_per_seg,
-                    )
-            else:
-                # Joint-space linear interpolation
-                segments = []
-                for seg_idx in range(n_segments):
-                    seg = interpolate_trajectory(
-                        waypoint_angles[seg_idx],
-                        waypoint_angles[seg_idx + 1],
-                        points_per_seg,
-                    )
-                    if seg_idx > 0:
-                        seg = seg[1:]
-                    segments.append(seg)
-                initial_traj = np.concatenate(segments, axis=0)
-
-            problem = TrajectoryProblem(
-                robot_model=robot_model,
-                link_list=link_list,
-                n_waypoints=total_points,
-                dt=0.1,
-                move_target=move_target,
-            )
-
-            # When task-space waypoints are enabled, the end waypoint
-            # is constrained by EE pose only (not joint angles).
-            if use_task_space_wp and move_target is not None:
-                problem.set_fixed_endpoints(start=True, end=False)
-                n_wps = len(waypoint_angles)
-                end_target = ee_wp_targets[n_wps - 1]
-                problem.add_ee_waypoint_cost(
-                    total_points - 1,
-                    end_target['pos'], end_target['rot'],
-                    position_weight=ee_wp_pos_w,
-                    rotation_weight=ee_wp_rot_w,
-                )
-
-            problem.add_smooth_trajectory_costs(
-                weight=smoothness_w,
-                use_high_precision=True,
-            )
-
-            # Add joint velocity limit to prevent large jumps between waypoints
-            # Scale=0.3 limits to 30% of max velocity for smoother trajectories
-            problem.add_joint_velocity_limit(scale=0.3)
-
-            if use_posture_reg and posture_w > 0:
-                nominal_angles = waypoint_angles[0]
-                problem.add_posture_cost(nominal_angles, weight=posture_w)
-
-            if cartesian_target_positions is not None:
-                cartesian_w = float(self._mp_cartesian_weight.value)
-                problem.add_cartesian_path_cost(
-                    target_positions=cartesian_target_positions,
-                    target_rotations=cartesian_target_rotations,
-                    weight=cartesian_w,
-                    rotation_weight=1.0,
-                )
-
-            activation_dist = float(self._mp_activation_dist.value)
-            if world_obstacles and collision_w > 0:
-                problem.add_collision_cost(
-                    collision_link_list=coll_link_list,
-                    world_obstacles=world_obstacles,
-                    weight=collision_w,
-                    activation_distance=activation_dist,
-                )
-                if use_self_collision:
-                    # Use soft cost for self-collision for smoother trajectories
-                    # This allows smoother trajectories by balancing
-                    # smoothness vs self-collision avoidance
-                    problem.add_self_collision_cost(
-                        weight=collision_w,
-                        activation_distance=0.02,
-                        as_constraint=False,  # Soft cost, not hard constraint
-                    )
-            elif use_self_collision and collision_w > 0:
-                dummy_obstacles = [{
-                    'type': 'sphere',
-                    'center': [0.0, 0.0, -1000.0],
-                    'radius': 0.001,
-                }]
-                problem.add_collision_cost(
-                    collision_link_list=coll_link_list,
-                    world_obstacles=dummy_obstacles,
-                    weight=0.0,
-                    activation_distance=0.0,
-                    as_constraint=False,  # Just for FK setup
-                )
-                # Use soft cost for self-collision for smoother trajectories
-                problem.add_self_collision_cost(
-                    weight=collision_w,
-                    activation_distance=0.02,
-                    as_constraint=False,  # Soft cost, not hard constraint
-                )
-
-            # Pin intermediate waypoints
-            for wp_i in range(1, n_segments):
-                traj_idx = (points_per_seg - 1) * wp_i
-                if use_task_space_wp and wp_i in ee_wp_targets:
-                    # Task-space: constrain only EE pose, not joint angles
-                    target = ee_wp_targets[wp_i]
-                    problem.add_ee_waypoint_cost(
-                        traj_idx, target['pos'], target['rot'],
-                        position_weight=ee_wp_pos_w,
-                        rotation_weight=ee_wp_rot_w,
-                    )
-                else:
-                    # Joint-space: fix all joint angles (default)
-                    problem.add_waypoint_constraint(
-                        traj_idx, waypoint_angles[wp_i]
-                    )
-
-            if (self._cached_mp_solver is None
-                    or self._cached_mp_solver_type != solver_type):
-                # First time using this solver - may need compilation
-                if solver_type == 'jaxls':
-                    self._mp_status_text.content = "**Compiling optimizer...**"
-                solver = create_solver(
-                    solver_type, max_iterations=max_iters, verbose=False
-                )
-                self._cached_mp_solver = solver
-                self._cached_mp_solver_type = solver_type
-            else:
-                solver = self._cached_mp_solver
-                solver.max_iterations = max_iters
-
-            self._mp_status_text.content = "**Optimizing trajectory...**"
-            result = solver.solve(problem, initial_traj)
-            self._planned_trajectory = result.trajectory
-
-            # Store planning metadata
-            self._planning_link_list = link_list
-            self._planning_group_name = group_name
-            self._planning_robot_id = robot_id
-
-            # Render trajectory ghosts
-            self._clear_trajectory_ghosts()
-            if hasattr(self, '_mp_show_trajectory') and self._mp_show_trajectory.value:
-                self._render_trajectory_ghosts()
-
-            self._mp_status_text.content = (
-                f"**Planning complete!** {len(self._planned_trajectory)} steps"
-            )
-
-        except Exception as e:
-            self._mp_status_text.content = f"**Planning failed:** {e}"
-            print(f"[Motion Planning] Error: {e}")
-            import traceback
-            traceback.print_exc()
-        finally:
-            self._is_planning = False
+        pass
 
     def _render_trajectory_ghosts(self):
         """Render ghost robots along the planned trajectory."""
@@ -2869,50 +2125,7 @@ class ViserViewer:
 
     def _animate_trajectory(self):
         """Animate the planned trajectory step by step (runs in background thread)."""
-        try:
-            if self._planned_trajectory is None:
-                return
-
-            robot_id = self._planning_robot_id
-            robot_model = self._robot_models.get(robot_id)
-            if robot_model is None:
-                return
-
-            link_list = self._planning_link_list
-            n_steps = len(self._planned_trajectory)
-
-            # Start from current progress position
-            start_progress = self._mp_progress.value
-            start_idx = int(start_progress * (n_steps - 1))
-
-            for step_idx in range(start_idx, n_steps):
-                if not self._is_animating:
-                    break
-
-                step_angles = self._planned_trajectory[step_idx]
-
-                # Apply joint angles
-                for i, link in enumerate(link_list):
-                    link.joint.joint_angle(float(step_angles[i]))
-
-                self.redraw()
-                self._sync_joint_sliders(robot_id)
-
-                # Update progress slider
-                progress = step_idx / max(n_steps - 1, 1)
-                with self._ik_update_guard():
-                    self._mp_progress.value = progress
-
-                # Compute sleep based on speed
-                speed = self._mp_speed.value
-                time.sleep(0.05 / speed)
-
-        except Exception as e:
-            print(f"[Animation] Error: {e}")
-        finally:
-            self._is_animating = False
-            self._mp_play_btn.name = "Play"
-            self._update_mp_status()
+        pass
 
     def _scrub_trajectory(self):
         """Jump to a specific position in the trajectory based on progress slider."""
@@ -2971,12 +2184,7 @@ class ViserViewer:
                     self._selected_planning_group = group_names[0]
 
     def draw_grid(self, width: float = 20.0, height: float = -0.001):
-        self._server.scene.add_grid(
-            "/grid",
-            width=20.0,
-            height=20.0,
-            position=np.array([0.0, 0.0, -0.01]),
-        )
+        pass
 
     def _add_link(self, link: Link, is_obstacle: bool = False):
         from skrobot.model.primitives import Box

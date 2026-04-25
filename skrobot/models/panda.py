@@ -29,7 +29,7 @@ class Panda(RobotModelFromURDF):
 
     @cached_property
     def default_urdf_path(self):
-        return panda_urdfpath()
+        pass
 
     def reset_pose(self):
         angle_vector = [
@@ -47,22 +47,17 @@ class Panda(RobotModelFromURDF):
 
     def reset_manip_pose(self):
         """Reset robot to manipulation pose (same as reset_pose for Panda)"""
-        return self.reset_pose()
+        pass
 
     @cached_property
     def rarm(self):
-        link_names = ['panda_link{}'.format(i) for i in range(1, 8)]
-        links = [getattr(self, n) for n in link_names]
-        joints = [l.joint for l in links]
-        model = RobotModel(link_list=links, joint_list=joints)
-        model.end_coords = self.rarm_end_coords
-        return model
+        pass
 
     # New naming convention aliases (backward compatible)
     @property
     def arm(self):
-        return self.rarm
+        pass
 
     @property
     def arm_end_coords(self):
-        return self.rarm_end_coords
+        pass

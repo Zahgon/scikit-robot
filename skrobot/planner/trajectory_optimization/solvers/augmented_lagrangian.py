@@ -101,12 +101,12 @@ class AugmentedLagrangianSolver(BaseSolver):
     @property
     def max_iterations(self):
         """Alias for max_inner_iterations (for compatibility)."""
-        return self.max_inner_iterations
+        pass
 
     @max_iterations.setter
     def max_iterations(self, value):
         """Set max_inner_iterations (for compatibility)."""
-        self.max_inner_iterations = value
+        pass
 
     def _get_problem_structure_key(self, problem):
         """Generate cache key from problem structure."""
@@ -468,15 +468,7 @@ class AugmentedLagrangianSolver(BaseSolver):
                         obs_radii = jnp.array([o['radius'] for o in sphere_obs])
 
                         def coll_cost_single(angles):
-                            sphere_pos = get_sphere_positions(angles)
-                            signed_dists = compute_sphere_obstacle_distances(
-                                sphere_pos, sphere_radii,
-                                obs_centers, obs_radii, jnp
-                            )
-                            residuals = compute_collision_residuals(
-                                signed_dists, activation, jnp
-                            )
-                            return jnp.sum(residuals ** 2)
+                            pass
 
                         coll_costs = jax.vmap(coll_cost_single)(trajectory)
                         total_cost = total_cost + weight * jnp.sum(coll_costs)
@@ -491,15 +483,7 @@ class AugmentedLagrangianSolver(BaseSolver):
                         pairs_j_arr = jnp.array(pairs_j)
 
                         def self_coll_cost_single(angles):
-                            sphere_pos = get_sphere_positions(angles)
-                            signed_dists = compute_self_collision_distances(
-                                sphere_pos, sphere_radii,
-                                pairs_i_arr, pairs_j_arr, jnp
-                            )
-                            residuals = compute_collision_residuals(
-                                signed_dists, activation, jnp
-                            )
-                            return jnp.sum(residuals ** 2)
+                            pass
 
                         self_coll_costs = jax.vmap(
                             self_coll_cost_single
@@ -516,22 +500,14 @@ class AugmentedLagrangianSolver(BaseSolver):
                         target_rots = jnp.array(target_rots)
 
                         def cart_cost_single(args):
-                            angles, t_pos, t_rot = args
-                            ee_pos, ee_rot = get_ee_pose(angles)
-                            pose_err = pose_error_log(
-                                ee_pos, ee_rot, t_pos, t_rot)
-                            pos_err = jnp.sum(pose_err[:3] ** 2)
-                            rot_err = jnp.sum(pose_err[3:] ** 2)
-                            return pos_err + rot_w * rot_err
+                            pass
 
                         cart_costs = jax.vmap(cart_cost_single)(
                             (trajectory, target_pos, target_rots)
                         )
                     else:
                         def cart_cost_pos_only(args):
-                            angles, t_pos = args
-                            ee_pos, _ = get_ee_pose(angles)
-                            return jnp.sum((ee_pos - t_pos) ** 2)
+                            pass
 
                         cart_costs = jax.vmap(cart_cost_pos_only)(
                             (trajectory, target_pos)
@@ -582,13 +558,7 @@ class AugmentedLagrangianSolver(BaseSolver):
                         obs_radii = jnp.array([o['radius'] for o in sphere_obs])
 
                         def coll_dist_single(angles):
-                            sphere_pos = get_sphere_positions(angles)
-                            signed_dists = compute_sphere_obstacle_distances(
-                                sphere_pos, sphere_radii,
-                                obs_centers, obs_radii, jnp
-                            )
-                            # Return signed distance (>= 0 is no collision)
-                            return signed_dists.flatten()
+                            pass
 
                         # (n_waypoints, n_spheres * n_obstacles)
                         dists = jax.vmap(coll_dist_single)(trajectory)
@@ -606,12 +576,7 @@ class AugmentedLagrangianSolver(BaseSolver):
                         pairs_j_arr = jnp.array(pairs_j)
 
                         def self_coll_dist_single(angles):
-                            sphere_pos = get_sphere_positions(angles)
-                            signed_dists = compute_self_collision_distances(
-                                sphere_pos, sphere_radii,
-                                pairs_i_arr, pairs_j_arr, jnp
-                            )
-                            return signed_dists
+                            pass
 
                         dists = jax.vmap(self_coll_dist_single)(trajectory)
                         # Constraint: dist - activation >= 0

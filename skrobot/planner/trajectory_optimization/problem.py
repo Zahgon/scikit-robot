@@ -102,13 +102,7 @@ class TrajectoryProblem:
     @property
     def fk_params(self):
         """Get FK parameters (lazily computed)."""
-        if self._fk_params is None:
-            from skrobot.kinematics.differentiable import extract_fk_parameters
-            self._fk_params = extract_fk_parameters(
-                self.robot_model, self.link_list,
-                self.move_target or self.robot_model
-            )
-        return self._fk_params
+        pass
 
     def add_smoothness_cost(self, weight=1.0):
         """Add smoothness cost (minimize velocity between waypoints).
@@ -118,13 +112,7 @@ class TrajectoryProblem:
         weight : float
             Cost weight.
         """
-        self.residuals.append(ResidualSpec(
-            name='smoothness',
-            residual_fn='smoothness',
-            params={'weight': weight},
-            kind='soft',
-            weight=weight,
-        ))
+        pass
 
     def add_acceleration_cost(self, weight=1.0):
         """Add acceleration minimization cost.
@@ -134,13 +122,7 @@ class TrajectoryProblem:
         weight : float
             Cost weight.
         """
-        self.residuals.append(ResidualSpec(
-            name='acceleration',
-            residual_fn='acceleration',
-            params={'weight': weight, 'dt': self.dt},
-            kind='soft',
-            weight=weight,
-        ))
+        pass
 
     def add_posture_cost(self, nominal_angles, weight=0.1):
         """Add posture regularization cost.
@@ -157,16 +139,7 @@ class TrajectoryProblem:
         weight : float
             Cost weight.
         """
-        nominal_angles = np.array(nominal_angles)
-        self.residuals.append(ResidualSpec(
-            name='posture',
-            residual_fn='posture',
-            params={
-                'nominal_angles': nominal_angles,
-            },
-            kind='soft',
-            weight=weight,
-        ))
+        pass
 
     def add_jerk_cost(self, weight=0.1):
         """Add jerk minimization cost.
@@ -176,13 +149,7 @@ class TrajectoryProblem:
         weight : float
             Cost weight.
         """
-        self.residuals.append(ResidualSpec(
-            name='jerk',
-            residual_fn='jerk',
-            params={'weight': weight, 'dt': self.dt},
-            kind='soft',
-            weight=weight,
-        ))
+        pass
 
     def add_smooth_trajectory_costs(
         self,
@@ -225,20 +192,7 @@ class TrajectoryProblem:
         - Otherwise:
             Uses simple smoothness (velocity) and 3-point acceleration
         """
-        velocity_w = weight * velocity_weight_scale
-        acceleration_w = weight * acceleration_weight_scale
-        jerk_w = weight * jerk_weight_scale
-
-        if use_high_precision and self.n_waypoints >= 7:
-            self.add_five_point_velocity_cost(weight=velocity_w)
-            self.add_five_point_acceleration_cost(weight=acceleration_w)
-            self.add_five_point_jerk_cost(weight=jerk_w)
-        elif use_high_precision and self.n_waypoints >= 5:
-            self.add_five_point_velocity_cost(weight=velocity_w)
-            self.add_five_point_acceleration_cost(weight=acceleration_w)
-        else:
-            self.add_smoothness_cost(weight=velocity_w)
-            self.add_acceleration_cost(weight=acceleration_w)
+        pass
 
     def add_five_point_velocity_cost(self, weight=1.0, velocity_limits=None):
         """Add velocity cost using 5-point stencil for higher accuracy.
@@ -257,27 +211,7 @@ class TrajectoryProblem:
             Maximum velocity for each joint. If None, uses joint velocity
             limits from the robot model.
         """
-        if self.n_waypoints < 5:
-            raise ValueError(
-                "5-point stencil requires at least 5 waypoints, "
-                f"got {self.n_waypoints}"
-            )
-        if velocity_limits is None:
-            velocity_limits = np.array([
-                j.max_joint_velocity for j in self.joint_list
-            ])
-        else:
-            velocity_limits = np.array(velocity_limits)
-        self.residuals.append(ResidualSpec(
-            name='five_point_velocity',
-            residual_fn='five_point_velocity',
-            params={
-                'dt': self.dt,
-                'velocity_limits': velocity_limits,
-            },
-            kind='soft',
-            weight=weight,
-        ))
+        pass
 
     def add_five_point_acceleration_cost(self, weight=1.0):
         """Add acceleration cost using 5-point stencil for higher accuracy.
@@ -293,18 +227,7 @@ class TrajectoryProblem:
         weight : float
             Cost weight.
         """
-        if self.n_waypoints < 5:
-            raise ValueError(
-                "5-point stencil requires at least 5 waypoints, "
-                f"got {self.n_waypoints}"
-            )
-        self.residuals.append(ResidualSpec(
-            name='five_point_acceleration',
-            residual_fn='five_point_acceleration',
-            params={'dt': self.dt},
-            kind='soft',
-            weight=weight,
-        ))
+        pass
 
     def add_five_point_jerk_cost(self, weight=0.1):
         """Add jerk cost using 7-point stencil for higher accuracy.
@@ -321,18 +244,7 @@ class TrajectoryProblem:
         weight : float
             Cost weight.
         """
-        if self.n_waypoints < 7:
-            raise ValueError(
-                "7-point stencil for jerk requires at least 7 waypoints, "
-                f"got {self.n_waypoints}"
-            )
-        self.residuals.append(ResidualSpec(
-            name='five_point_jerk',
-            residual_fn='five_point_jerk',
-            params={'dt': self.dt},
-            kind='soft',
-            weight=weight,
-        ))
+        pass
 
     def add_acceleration_limit(self, acceleration_limit, weight=1.0):
         """Add acceleration limit constraint using 5-point stencil.
@@ -347,25 +259,7 @@ class TrajectoryProblem:
         weight : float
             Cost weight.
         """
-        if self.n_waypoints < 5:
-            raise ValueError(
-                "5-point stencil requires at least 5 waypoints, "
-                f"got {self.n_waypoints}"
-            )
-        if np.isscalar(acceleration_limit):
-            acceleration_limit = np.full(self.n_joints, acceleration_limit)
-        else:
-            acceleration_limit = np.array(acceleration_limit)
-        self.residuals.append(ResidualSpec(
-            name='acceleration_limit',
-            residual_fn='acceleration_limit',
-            params={
-                'dt': self.dt,
-                'acceleration_limit': acceleration_limit,
-            },
-            kind='soft',
-            weight=weight,
-        ))
+        pass
 
     def add_jerk_limit(self, jerk_limit, weight=0.1):
         """Add jerk limit constraint using 7-point stencil.
@@ -379,37 +273,11 @@ class TrajectoryProblem:
         weight : float
             Cost weight.
         """
-        if self.n_waypoints < 7:
-            raise ValueError(
-                "7-point stencil for jerk requires at least 7 waypoints, "
-                f"got {self.n_waypoints}"
-            )
-        if np.isscalar(jerk_limit):
-            jerk_limit = np.full(self.n_joints, jerk_limit)
-        else:
-            jerk_limit = np.array(jerk_limit)
-        self.residuals.append(ResidualSpec(
-            name='jerk_limit',
-            residual_fn='jerk_limit',
-            params={
-                'dt': self.dt,
-                'jerk_limit': jerk_limit,
-            },
-            kind='soft',
-            weight=weight,
-        ))
+        pass
 
     def add_joint_limit_constraint(self):
         """Add joint limit constraints."""
-        self.residuals.append(ResidualSpec(
-            name='joint_limits',
-            residual_fn='joint_limits',
-            params={
-                'lower': self.joint_limits_lower,
-                'upper': self.joint_limits_upper,
-            },
-            kind='geq',
-        ))
+        pass
 
     def add_collision_cost(
         self,
@@ -435,32 +303,7 @@ class TrajectoryProblem:
             If True (default), treat as hard constraint for Augmented Lagrangian
             solver (collision distance >= 0). If False, treat as soft cost.
         """
-        self.collision_link_list = collision_link_list
-        self.world_obstacles = world_obstacles
-
-        # Extract collision spheres
-        from skrobot.planner.trajectory_optimization.collision import extract_collision_spheres
-        self.collision_spheres = extract_collision_spheres(
-            self.robot_model, collision_link_list, n_spheres_per_link=3
-        )
-
-        # Compute collision link offsets
-        self._compute_collision_link_offsets()
-
-        # Use 'geq' for hard constraint (Augmented Lagrangian)
-        # Use 'soft' for soft cost (gradient descent, etc.)
-        kind = 'geq' if as_constraint else 'soft'
-
-        self.residuals.append(ResidualSpec(
-            name='world_collision',
-            residual_fn='world_collision',
-            params={
-                'obstacles': world_obstacles,
-                'activation_distance': activation_distance,
-            },
-            kind=kind,
-            weight=weight,
-        ))
+        pass
 
     def add_self_collision_cost(
         self,
@@ -480,86 +323,11 @@ class TrajectoryProblem:
             If True (default), treat as hard constraint for Augmented Lagrangian
             solver (collision distance >= 0). If False, treat as soft cost.
         """
-        if self.collision_link_list is None:
-            raise ValueError(
-                "Must call add_collision_cost first to set collision_link_list"
-            )
-
-        # Create self-collision pairs
-        from skrobot.planner.trajectory_optimization.collision import create_self_collision_pairs
-        link_pairs = create_self_collision_pairs(
-            self.collision_link_list, ignore_adjacent=True
-        )
-
-        # Build sphere pair indices
-        collision_link_indices = self.collision_spheres['link_indices']
-        n_spheres = len(collision_link_indices)
-        pairs_i = []
-        pairs_j = []
-
-        for link_i, link_j in link_pairs:
-            for si in range(n_spheres):
-                if collision_link_indices[si] != link_i:
-                    continue
-                for sj in range(n_spheres):
-                    if collision_link_indices[sj] != link_j:
-                        continue
-                    pairs_i.append(si)
-                    pairs_j.append(sj)
-
-        self.self_collision_pairs = (np.array(pairs_i), np.array(pairs_j))
-
-        # Use 'geq' for hard constraint (Augmented Lagrangian)
-        # Use 'soft' for soft cost (gradient descent, etc.)
-        kind = 'geq' if as_constraint else 'soft'
-
-        self.residuals.append(ResidualSpec(
-            name='self_collision',
-            residual_fn='self_collision',
-            params={
-                'pair_indices': self.self_collision_pairs,
-                'activation_distance': activation_distance,
-            },
-            kind=kind,
-            weight=weight,
-        ))
+        pass
 
     def _compute_collision_link_offsets(self):
         """Compute offsets from kinematic chain links to collision links."""
-        link_to_idx = {link: idx for idx, link in enumerate(self.link_list)}
-        self.collision_link_to_chain_idx = []
-        self.collision_link_offsets_pos = []
-        self.collision_link_offsets_rot = []
-
-        for link in self.collision_link_list:
-            if link in link_to_idx:
-                self.collision_link_to_chain_idx.append(link_to_idx[link])
-                self.collision_link_offsets_pos.append(np.zeros(3))
-                self.collision_link_offsets_rot.append(np.eye(3))
-            else:
-                # Find parent in kinematic chain
-                parent = link.parent_link
-                while parent is not None and parent not in link_to_idx:
-                    parent = parent.parent_link
-
-                if parent is not None:
-                    self.collision_link_to_chain_idx.append(link_to_idx[parent])
-                    parent_coords = parent.worldcoords()
-                    link_coords = link.worldcoords()
-                    rel_pos = parent_coords.inverse_transform_vector(
-                        link_coords.worldpos()
-                    )
-                    rel_rot = parent_coords.worldrot().T @ link_coords.worldrot()
-                    self.collision_link_offsets_pos.append(rel_pos)
-                    self.collision_link_offsets_rot.append(rel_rot)
-                else:
-                    self.collision_link_to_chain_idx.append(0)
-                    self.collision_link_offsets_pos.append(np.zeros(3))
-                    self.collision_link_offsets_rot.append(np.eye(3))
-
-        self.collision_link_to_chain_idx = np.array(self.collision_link_to_chain_idx)
-        self.collision_link_offsets_pos = np.array(self.collision_link_offsets_pos)
-        self.collision_link_offsets_rot = np.array(self.collision_link_offsets_rot)
+        pass
 
     def add_pose_cost(
         self,
@@ -581,18 +349,7 @@ class TrajectoryProblem:
         rotation_weight : float
             Rotation tracking weight.
         """
-        self.residuals.append(ResidualSpec(
-            name='pose',
-            residual_fn='pose',
-            params={
-                'target_positions': target_positions,
-                'target_rotations': target_rotations,
-                'position_weight': position_weight,
-                'rotation_weight': rotation_weight,
-            },
-            kind='soft',
-            weight=1.0,  # Weights are in params
-        ))
+        pass
 
     def add_joint_velocity_limit(self, scale=1.0):
         """Add joint velocity limit constraint.
@@ -606,19 +363,7 @@ class TrajectoryProblem:
             Fraction of maximum joint velocity to allow (0, 1].
             For example, 0.8 uses 80 % of each joint's velocity limit.
         """
-        max_velocities = np.array([
-            j.max_joint_velocity for j in self.joint_list
-        ])
-        self.residuals.append(ResidualSpec(
-            name='joint_velocity_limit',
-            residual_fn='joint_velocity_limit',
-            params={
-                'max_velocities': max_velocities * scale,
-                'dt': self.dt,
-            },
-            kind='geq',
-            weight=1.0,
-        ))
+        pass
 
     def add_cartesian_path_cost(
         self,
@@ -645,17 +390,7 @@ class TrajectoryProblem:
         rotation_weight : float
             Rotation tracking weight relative to position weight.
         """
-        self.residuals.append(ResidualSpec(
-            name='cartesian_path',
-            residual_fn='cartesian_path',
-            params={
-                'target_positions': target_positions,
-                'target_rotations': target_rotations,
-                'rotation_weight': rotation_weight,
-            },
-            kind='soft',
-            weight=weight,
-        ))
+        pass
 
     def set_fixed_endpoints(self, start=True, end=True):
         """Set whether to fix start and end waypoints.
@@ -667,8 +402,7 @@ class TrajectoryProblem:
         end : bool
             Fix end waypoint.
         """
-        self.fixed_start = start
-        self.fixed_end = end
+        pass
 
     def add_waypoint_constraint(self, waypoint_index, joint_angles):
         """Pin a specific trajectory waypoint to given joint angles.
@@ -680,9 +414,7 @@ class TrajectoryProblem:
         joint_angles : array-like
             Joint angles to enforce at this index.
         """
-        self.waypoint_constraints.append(
-            (waypoint_index, np.array(joint_angles))
-        )
+        pass
 
     def add_ee_waypoint_cost(
         self,
@@ -712,30 +444,8 @@ class TrajectoryProblem:
         rotation_weight : float
             Rotation tracking weight.
         """
-        self.ee_waypoint_costs.append({
-            'waypoint_index': waypoint_index,
-            'target_position': np.array(target_position),
-            'target_rotation': np.array(target_rotation),
-            'position_weight': position_weight,
-            'rotation_weight': rotation_weight,
-        })
+        pass
 
     def to_dict(self):
         """Export problem to dictionary for serialization."""
-        return {
-            'n_waypoints': self.n_waypoints,
-            'n_joints': self.n_joints,
-            'dt': self.dt,
-            'joint_limits_lower': self.joint_limits_lower.tolist(),
-            'joint_limits_upper': self.joint_limits_upper.tolist(),
-            'residuals': [
-                {
-                    'name': r.name,
-                    'kind': r.kind,
-                    'weight': r.weight,
-                }
-                for r in self.residuals
-            ],
-            'fixed_start': self.fixed_start,
-            'fixed_end': self.fixed_end,
-        }
+        pass

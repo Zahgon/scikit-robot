@@ -118,34 +118,20 @@ class _ConnectorLink(Link):
     @property
     def visual_mesh(self):
         """Lazily rebuild cylinder mesh when accessed."""
-        if self._mesh_dirty and self._cached_local_target is not None:
-            self._rebuild_cylinder()
-        return self._cylinder_mesh
+        pass
 
     @visual_mesh.setter
     def visual_mesh(self, value):
-        self._cylinder_mesh = value
-        self._mesh_dirty = False
+        pass
 
     @property
     def concatenated_visual_mesh(self):
         """Return the lazily-built cylinder mesh."""
-        return self.visual_mesh
+        pass
 
     def _rebuild_cylinder(self):
         """Rebuild cylinder mesh to connect to target."""
-        local_target = self._cached_local_target
-        length = np.linalg.norm(local_target)
-        if length < 1e-6:
-            cyl = trimesh.creation.cylinder(radius=self._radius, height=1e-6)
-        else:
-            cyl = trimesh.creation.cylinder(radius=self._radius, height=length)
-            c = Coordinates(pos=local_target / 2)
-            c.align_axis_to_direction(local_target / length)
-            cyl.apply_transform(c.T())
-        cyl.visual.face_colors = self._color
-        self._cylinder_mesh = cyl
-        self._mesh_dirty = False
+        pass
 
 
 class SkeletonModel(CascadedLink):

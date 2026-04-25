@@ -97,9 +97,7 @@ class ScipySolver(BaseSolver):
 
         def objective(x):
             """Smoothness objective function."""
-            f = (0.5 * A.dot(x).dot(x)) / n_wp
-            grad = A.dot(x) / n_wp
-            return f, grad
+            pass
 
         # Terminal constraints (fixed start/end)
         av_start = initial_trajectory[0]
@@ -107,12 +105,7 @@ class ScipySolver(BaseSolver):
 
         def eq_constraint(x):
             """Equality constraint for fixed endpoints."""
-            Q = x.reshape(n_wp, n_dof)
-            f = np.hstack((av_start - Q[0], av_end - Q[-1]))
-            grad = np.zeros((n_dof * 2, n_dof * n_wp))
-            grad[:n_dof, :n_dof] = -np.eye(n_dof)
-            grad[-n_dof:, -n_dof:] = -np.eye(n_dof)
-            return f, grad
+            pass
 
         # Build constraints list
         eq_scipy, eq_jac_scipy = _scipinize(eq_constraint)
@@ -127,12 +120,7 @@ class ScipySolver(BaseSolver):
             )
 
             def ineq_constraint(x):
-                av_seq = x.reshape(n_wp, n_dof)
-                sd_vals, sd_val_jac = collision_checker.compute_batch_sd_vals(
-                    joint_list_for_collision, av_seq,
-                    with_base=with_base, with_jacobian=True
-                )
-                return sd_vals - self.safety_margin, sd_val_jac
+                pass
 
             ineq_scipy, ineq_jac_scipy = _scipinize(ineq_constraint)
             ineq_dict = {'type': 'ineq', 'fun': ineq_scipy, 'jac': ineq_jac_scipy}
@@ -212,7 +200,7 @@ class ScipySolver(BaseSolver):
         sphere_obs = [o for o in problem.world_obstacles if o['type'] == 'sphere']
         if not sphere_obs:
             def dummy_constraint(x):
-                return np.array([1.0]), np.zeros((1, n_wp * n_dof))
+                pass
             return dummy_constraint
 
         obs_centers = np.array([o['center'] for o in sphere_obs])
@@ -246,20 +234,7 @@ class ScipySolver(BaseSolver):
 
         def ineq_constraint(x):
             """Inequality constraint: signed_distance - safety_margin >= 0."""
-            min_dists = compute_min_distances(x)
-
-            # Numerical Jacobian
-            eps = 1e-6
-            n_constraints = n_wp
-            jac = np.zeros((n_constraints, n_wp * n_dof))
-
-            for i in range(n_wp * n_dof):
-                x_plus = x.copy()
-                x_plus[i] += eps
-                dists_plus = compute_min_distances(x_plus)
-                jac[:, i] = (dists_plus - min_dists) / eps
-
-            return min_dists - safety_margin, jac
+            pass
 
         return ineq_constraint
 
@@ -292,10 +267,10 @@ def _scipinize(fun):
         return cache[key]
 
     def f_scipy(x):
-        return compute(x)[0]
+        pass
 
     def jac_scipy(x):
-        return compute(x)[1]
+        pass
 
     return f_scipy, jac_scipy
 

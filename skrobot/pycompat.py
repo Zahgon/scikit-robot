@@ -24,7 +24,7 @@ try:
     # JAX may import successfully but fail at runtime with older NumPy
     # Test lax.scan which triggers np.asarray(..., copy=...) internally
     def _test_fn(carry, _):
-        return carry + 1, None
+        pass
     _ = lax.scan(_test_fn, jnp.array(0.0), None, length=1)
     HAS_JAX = True
     del jax, jnp, lax, _test_fn

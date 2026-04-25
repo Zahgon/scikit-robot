@@ -146,7 +146,7 @@ class Joint(object):
         str
             Joint type ('revolute', 'continuous', 'prismatic', 'fixed', etc.)
         """
-        return self.type
+        pass
 
     @property
     def min_joint_angle(self):
@@ -157,12 +157,12 @@ class Joint(object):
         float
             Minimum joint angle
         """
-        return self.min_angle
+        pass
 
     @min_joint_angle.setter
     def min_joint_angle(self, value):
         """Setter for min_joint_angle (updates min_angle)."""
-        self.min_angle = value
+        pass
 
     @property
     def max_joint_angle(self):
@@ -173,12 +173,12 @@ class Joint(object):
         float
             Maximum joint angle
         """
-        return self.max_angle
+        pass
 
     @max_joint_angle.setter
     def max_joint_angle(self, value):
         """Setter for max_joint_angle (updates max_angle)."""
-        self.max_angle = value
+        pass
 
     @property
     def joint_dof(self):
@@ -226,14 +226,7 @@ class Joint(object):
         axis : numpy.ndarray
             Joint axis in world coordinate system.
         """
-        if not hasattr(self, 'axis'):
-            return np.array([0, 0, 1])
-
-        if self.parent_link is not None:
-            return self.parent_link.copy_worldcoords().transform(
-                self.default_coords).rotate_vector(self.axis)
-
-        return self.default_coords.rotate_vector(self.axis)
+        pass
 
     @property
     def world_position(self):
@@ -246,10 +239,7 @@ class Joint(object):
         position : numpy.ndarray
             Joint position in world coordinate system.
         """
-        if self.parent_link is not None:
-            return self.parent_link.copy_worldcoords().transform(
-                self.default_coords).worldpos()
-        return self.default_coords.worldpos()
+        pass
 
     @property
     def joint_min_max_table_min_angle(self):
@@ -359,9 +349,7 @@ class RotationalJoint(Joint):
 
     @property
     def type(self):
-        if np.isinf(self.min_angle) or np.isinf(self.max_angle):
-            return 'continuous'
-        return 'revolute'
+        pass
 
     @property
     def joint_axis(self):
@@ -372,12 +360,12 @@ class RotationalJoint(Joint):
         numpy.ndarray
             Joint rotation axis (normalized 3D vector)
         """
-        return self.axis
+        pass
 
     @joint_axis.setter
     def joint_axis(self, value):
         """Setter for joint_axis (updates axis)."""
-        self.axis = normalize_vector(convert_to_axis_vector(value))
+        pass
 
     def joint_angle(self, v=None, relative=None, enable_hook=True):
         """Return joint angle.
@@ -469,7 +457,7 @@ class FixedJoint(Joint):
 
     @property
     def type(self):
-        return 'fixed'
+        pass
 
     def joint_angle(self, v=None, relative=None, enable_hook=True):
         """Joint angle method.
@@ -564,7 +552,7 @@ class LinearJoint(Joint):
 
     @property
     def type(self):
-        return 'prismatic'
+        pass
 
     @property
     def joint_axis(self):
@@ -575,12 +563,12 @@ class LinearJoint(Joint):
         numpy.ndarray
             Joint translation axis (normalized 3D vector)
         """
-        return self.axis
+        pass
 
     @joint_axis.setter
     def joint_axis(self, value):
         """Setter for joint_axis (updates axis)."""
-        self.axis = normalize_vector(convert_to_axis_vector(value))
+        pass
 
     def joint_angle(self, v=None, relative=None, enable_hook=True):
         """Return this joint's linear translation (joint angle).
@@ -744,7 +732,7 @@ class PlanarJoint(Joint):
 
     @property
     def type(self):
-        return 'planar'
+        pass
 
     def joint_angle(self, v=None, relative=None, enable_hook=True):
         if v is not None:
@@ -835,7 +823,7 @@ class FloatingJoint(Joint):
 
     @property
     def type(self):
-        return 'floating'
+        pass
 
     def joint_angle(self, v=None, relative=None, enable_hook=True):
         if v is not None:

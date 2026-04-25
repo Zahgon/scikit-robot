@@ -101,8 +101,7 @@ def build_fk_functions(fk_data, backend):
         array
             End-effector position in world frame (3,).
         """
-        pos, _ = get_ee_pose(angles)
-        return pos
+        pass
 
     def get_ee_pose(angles):
         """Compute end-effector position and rotation for given joint angles.

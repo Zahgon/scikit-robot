@@ -131,18 +131,11 @@ class PandaROSRobotInterface(ROSRobotInterfaceBase):
         msg : franka_msgs.msg.FrankaState
             FrankaState message.
         """
-        self._has_error = (
-            msg.robot_mode != franka_msgs.msg.FrankaState.ROBOT_MODE_MOVE)
+        pass
 
     @property
     def rarm_controller(self):
-        return dict(
-            controller_type='rarm_controller',
-            controller_action='position_joint_trajectory_controller/follow_joint_trajectory',  # NOQA
-            controller_state='position_joint_trajectory_controller/state',
-            action_type=control_msgs.msg.FollowJointTrajectoryAction,
-            joint_names=[j.name for j in self.robot.rarm.joint_list],
-        )
+        pass
 
     def default_controller(self):
         return [self.rarm_controller]
@@ -158,7 +151,7 @@ class PandaROSRobotInterface(ROSRobotInterfaceBase):
         bool
             True if the robot has an error, False otherwise.
         """
-        return self._has_error
+        pass
 
     def recover_error(self, wait=True):
         """Recover from errors and reflexes.
@@ -175,12 +168,7 @@ class PandaROSRobotInterface(ROSRobotInterfaceBase):
         bool or None
             Result of the action if wait is True, None otherwise.
         """
-        goal = franka_msgs.msg.ErrorRecoveryGoal()
-        if wait:
-            return self.error_recovery.send_goal_and_wait(goal)
-        else:
-            self.error_recovery.send_goal(goal)
-            return None
+        pass
 
     def wait_recover_error(self):
         """Wait for error recovery to complete.
@@ -190,7 +178,7 @@ class PandaROSRobotInterface(ROSRobotInterfaceBase):
         bool
             True if recovery succeeded, False otherwise.
         """
-        return self.error_recovery.wait_for_result()
+        pass
 
     def grasp(self, width=0, **kwargs):
         """Close the gripper to grasp an object.
@@ -204,7 +192,7 @@ class PandaROSRobotInterface(ROSRobotInterfaceBase):
         **kwargs
             Additional arguments passed to move_gripper.
         """
-        self.move_gripper(width=width, **kwargs)
+        pass
 
     def ungrasp(self, **kwargs):
         """Open the gripper to release an object.
@@ -214,7 +202,7 @@ class PandaROSRobotInterface(ROSRobotInterfaceBase):
         **kwargs
             Additional arguments passed to move_gripper.
         """
-        self.move_gripper(width=WIDTH_MAX, **kwargs)
+        pass
 
     def move_gripper(self, width, speed=WIDTH_MAX, wait=True):
         """Move the gripper to the target width.
@@ -228,11 +216,7 @@ class PandaROSRobotInterface(ROSRobotInterfaceBase):
         wait : bool
             If True, wait until the movement is complete.
         """
-        goal = franka_gripper.msg.MoveGoal(width=width, speed=speed)
-        if wait:
-            self.gripper_move.send_goal_and_wait(goal)
-        else:
-            self.gripper_move.send_goal(goal)
+        pass
 
     def stop_gripper(self, wait=True):
         """Abort a running gripper action.
@@ -244,11 +228,7 @@ class PandaROSRobotInterface(ROSRobotInterfaceBase):
         wait : bool
             If True, wait until the action is complete.
         """
-        goal = franka_gripper.msg.StopGoal()
-        if wait:
-            self.gripper_stop.send_goal_and_wait(goal)
-        else:
-            self.gripper_stop.send_goal(goal)
+        pass
 
     def grasp_gripper(self, width=0.0, speed=0.1, force=10.0,
                       epsilon_inner=0.005, epsilon_outer=0.07, wait=True):
@@ -279,17 +259,7 @@ class PandaROSRobotInterface(ROSRobotInterfaceBase):
         bool or None
             Result of the action if wait is True, None otherwise.
         """
-        goal = franka_gripper.msg.GraspGoal()
-        goal.width = width
-        goal.speed = speed
-        goal.force = force
-        goal.epsilon.inner = epsilon_inner
-        goal.epsilon.outer = epsilon_outer
-        if wait:
-            return self.gripper_grasp.send_goal_and_wait(goal)
-        else:
-            self.gripper_grasp.send_goal(goal)
-            return None
+        pass
 
     def start_grasp(self, width=0.0, force=80.0, speed=0.1,
                     epsilon_inner=0.005, epsilon_outer=0.06, wait=True):
@@ -320,10 +290,7 @@ class PandaROSRobotInterface(ROSRobotInterfaceBase):
         bool or None
             Result of the action if wait is True, None otherwise.
         """
-        return self.grasp_gripper(
-            width=width, speed=speed, force=force,
-            epsilon_inner=epsilon_inner, epsilon_outer=epsilon_outer,
-            wait=wait)
+        pass
 
     def stop_grasp(self, width=WIDTH_MAX, speed=WIDTH_MAX, wait=True):
         """Open the gripper to stop grasping.
@@ -337,7 +304,7 @@ class PandaROSRobotInterface(ROSRobotInterfaceBase):
         wait : bool
             If True, wait until the movement is complete.
         """
-        self.move_gripper(width=width, speed=speed, wait=wait)
+        pass
 
     def homing_gripper(self, wait=True):
         """Home the gripper and calibrate finger width.
@@ -355,9 +322,4 @@ class PandaROSRobotInterface(ROSRobotInterfaceBase):
         bool or None
             Result of the action if wait is True, None otherwise.
         """
-        goal = franka_gripper.msg.HomingGoal()
-        if wait:
-            return self.gripper_homing.send_goal_and_wait(goal)
-        else:
-            self.gripper_homing.send_goal(goal)
-            return None
+        pass

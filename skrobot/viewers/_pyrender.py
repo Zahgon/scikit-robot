@@ -248,7 +248,7 @@ class PyrenderViewer(pyrender.Viewer):
         # Schedule _allow_rendering=True after event loop starts
         # This ensures pending on_resize events are skipped
         def enable_rendering(dt):
-            self._allow_rendering = True
+            pass
 
         if compat_platform == 'darwin':
             # On macOS, pyglet.app.run() is not called, so we enable rendering directly
@@ -346,69 +346,21 @@ class PyrenderViewer(pyrender.Viewer):
         self._redraw = False
 
     def on_mouse_press(self, *args, **kwargs):
-        self._redraw = True
-        return super(PyrenderViewer, self).on_mouse_press(*args, **kwargs)
+        pass
 
     def on_mouse_drag(self, *args, **kwargs):
-        self._redraw = True
-        return super(PyrenderViewer, self).on_mouse_drag(*args, **kwargs)
+        pass
 
     def on_mouse_scroll(self, *args, **kwargs):
-        self._redraw = True
-        return super(PyrenderViewer, self).on_mouse_scroll(*args, **kwargs)
+        pass
 
     def on_key_press(self, symbol, modifiers, *args, **kwargs):
         """Handle key press events with collision toggle support."""
-        # Handle 'v' key for collision toggle if enabled
-        if self.enable_collision_toggle:
-            from pyglet.window import key
-            if symbol == key.V:
-                # Toggle display mode
-                self.show_collision = not self.show_collision
-
-                # Rebuild scene with current mesh type
-                self._rebuild_scene_for_toggle()
-
-                mode_text = "Collision" if self.show_collision else "Visual"
-                print(f"Switched to {mode_text.lower()} mesh display")
-
-                self._redraw = True
-                return True
-
-        # Handle 'j' key for joint axis toggle
-        from pyglet.window import key
-        if symbol == key.J:
-            # Toggle joint axis display mode
-            self.show_joint_axes = not self.show_joint_axes
-            self._toggle_joint_axes()
-
-            mode_text = "on" if self.show_joint_axes else "off"
-            print(f"Joint axes display: {mode_text}")
-
-            self._redraw = True
-            return True
-
-        self._redraw = True
-        return super(PyrenderViewer, self).on_key_press(symbol, modifiers, *args, **kwargs)
+        pass
 
     def on_resize(self, *args, **kwargs):
         # Block rendering until initialization is complete
-        if not getattr(self, '_allow_rendering', False):
-            # Still need to set viewport size even if we skip rendering
-            if self.context:
-                self._viewport_size = args if args else (self.width, self.height)
-            return
-
-        # Ensure context is current before handling resize
-        if not self.context:
-            return
-        try:
-            self.switch_to()
-        except Exception:
-            # Context not ready yet, skip this resize event
-            return
-        self._redraw = True
-        return super(PyrenderViewer, self).on_resize(*args, **kwargs)
+        pass
 
     def _add_link(self, link):
         assert isinstance(link, model_module.Link)
@@ -534,76 +486,7 @@ class PyrenderViewer(pyrender.Viewer):
         >>> viewer.add_joint_axis(robot.r_shoulder_pan_joint)
         >>> viewer.show()
         """
-        from skrobot.model import Joint
-
-        if not isinstance(joint, Joint):
-            raise TypeError('joint must be a Joint object')
-
-        if axis_color is None:
-            axis_color = [1.0, 0.0, 0.0, 1.0]
-
-        with self._render_lock:
-            joint_id = str(id(joint))
-            position = joint.world_position
-            axis = joint.world_axis
-
-            # Create sphere for joint position
-            sphere_mesh = trimesh.creation.uv_sphere(radius=sphere_radius)
-            sphere_mesh.visual.vertex_colors = [100, 100, 255, 255]  # Blue color
-            pyrender_sphere = pyrender.Mesh.from_trimesh(sphere_mesh, smooth=False)
-
-            sphere_transform = np.eye(4)
-            sphere_transform[:3, 3] = position
-            sphere_node = self.scene.add(pyrender_sphere, pose=sphere_transform)
-
-            # Create cylinder for joint axis
-            axis_node = None
-            if axis is not None:
-                cylinder_mesh = trimesh.creation.cylinder(
-                    radius=axis_radius,
-                    height=axis_length,
-                    sections=16
-                )
-                cylinder_mesh.visual.vertex_colors = [
-                    int(axis_color[0] * 255),
-                    int(axis_color[1] * 255),
-                    int(axis_color[2] * 255),
-                    int(axis_color[3] * 255)
-                ]
-                pyrender_cylinder = pyrender.Mesh.from_trimesh(
-                    cylinder_mesh, smooth=False)
-
-                # Calculate rotation matrix to align cylinder with axis
-                z_axis = np.array([0, 0, 1])
-                axis_normalized = axis / np.linalg.norm(axis)
-
-                rotation_axis = np.cross(z_axis, axis_normalized)
-                rotation_axis_norm = np.linalg.norm(rotation_axis)
-
-                if rotation_axis_norm > 1e-6:
-                    rotation_axis = rotation_axis / rotation_axis_norm
-                    angle = np.arccos(np.clip(np.dot(z_axis, axis_normalized), -1.0, 1.0))
-                    K = np.array([
-                        [0, -rotation_axis[2], rotation_axis[1]],
-                        [rotation_axis[2], 0, -rotation_axis[0]],
-                        [-rotation_axis[1], rotation_axis[0], 0]
-                    ])
-                    rotation_matrix = np.eye(3) + np.sin(angle) * K + (1 - np.cos(angle)) * (K @ K)
-                else:
-                    if np.dot(z_axis, axis_normalized) > 0:
-                        rotation_matrix = np.eye(3)
-                    else:
-                        rotation_matrix = np.array([[-1, 0, 0], [0, -1, 0], [0, 0, -1]])
-
-                axis_transform = np.eye(4)
-                axis_transform[:3, :3] = rotation_matrix
-                axis_transform[:3, 3] = position
-                axis_node = self.scene.add(pyrender_cylinder, pose=axis_transform)
-
-            # Store in joint axis map
-            self._joint_axis_map[joint_id] = (sphere_node, axis_node, joint)
-
-        self._redraw = True
+        pass
 
     def delete_joint_axis(self, joint):
         """Delete joint axis visualization from the scene.
@@ -628,15 +511,7 @@ class PyrenderViewer(pyrender.Viewer):
         >>> viewer.show()
         >>> viewer.delete_joint_axis(robot.r_shoulder_pan_joint)
         """
-        with self._render_lock:
-            joint_id = str(id(joint))
-            if joint_id in self._joint_axis_map:
-                sphere_node, axis_node, _ = self._joint_axis_map[joint_id]
-                self.scene.remove_node(sphere_node)
-                if axis_node is not None:
-                    self.scene.remove_node(axis_node)
-                self._joint_axis_map.pop(joint_id)
-        self._redraw = True
+        pass
 
     def _toggle_joint_axes(self):
         """Toggle joint axes display for all stored robots."""
@@ -727,81 +602,7 @@ class PyrenderViewer(pyrender.Viewer):
         transparent_background : bool
             Whether to render with transparent background (default: True)
         """
-        output_path = Path(output_dir)
-        output_path.mkdir(parents=True, exist_ok=True)
-
-        if fov is None:
-            fov = np.array([60, 45])
-
-        # Create offscreen renderer
-        offscreen_renderer = pyrender.OffscreenRenderer(
-            viewport_width=self._viewport_size[0],
-            viewport_height=self._viewport_size[1]
-        )
-
-        # Setup lighting
-        added_lights = self._setup_scene_lighting(lighting_config)
-
-        # Store original camera pose and scene settings to restore later
-        original_pose = self._camera_node.matrix.copy()
-        original_bg_color = self.scene.bg_color
-
-        # Set transparent background if requested
-        if transparent_background:
-            self.scene.bg_color = np.array([0.0, 0.0, 0.0, 0.0])
-
-        # Determine render flags
-        render_flags = pyrender.RenderFlags.RGBA if transparent_background else pyrender.RenderFlags.NONE
-
-        # Calculate rotation angles
-        angles = np.linspace(0, 2 * np.pi, num_frames, endpoint=False)
-
-        try:
-            with self._render_lock:
-                # Update scene meshes
-                self._update_scene_meshes()
-
-                # Calculate optimal camera distance
-                camera_distance_calc = self._calculate_camera_distance(distance_margin)
-
-                for i, z_angle in enumerate(angles):
-                    # Set camera position with rotation around Z axis
-                    camera_angles = [np.deg2rad(camera_elevation), np.deg2rad(0), z_angle]
-                    rotation = transformations.euler_matrix(*camera_angles)
-
-                    # Use calculated distance if not provided
-                    actual_distance = distance if distance is not None else camera_distance_calc
-                    pose = cameras.look_at(
-                        self.scene.bounds, fov=fov, rotation=rotation,
-                        distance=actual_distance, center=center)
-
-                    # Update camera node matrix
-                    self._camera_node.matrix = pose
-
-                    # Render image
-                    color, depth = offscreen_renderer.render(self.scene, flags=render_flags)
-
-                    # Save image with appropriate mode
-                    if transparent_background and color.shape[2] == 4:
-                        image = Image.fromarray(color, mode='RGBA')
-                    else:
-                        image = Image.fromarray(color)
-                    image_path = output_path / f"frame_{i:03d}.png"
-                    image.save(image_path)
-                    print(f"Saved: {image_path}")
-        finally:
-            # Clean up
-            self._cleanup_scene_lighting(added_lights)
-            self._camera_node.matrix = original_pose
-            self.scene.bg_color = original_bg_color
-            offscreen_renderer.delete()
-
-        print(f"360-degree image capture complete. {num_frames} images saved to {output_dir}")
-
-        # Create GIF animation if requested
-        if create_gif:
-            gif_path = output_path / "animation.gif"
-            self._create_gif_from_images(output_path, gif_path, gif_duration, gif_loop)
+        pass
 
     def _create_gif_from_images(self, image_dir, output_gif, duration=100, loop=0):
         """Create GIF animation from captured images.
@@ -817,115 +618,23 @@ class PyrenderViewer(pyrender.Viewer):
         loop : int
             Number of loops (0 = infinite loop)
         """
-        # Get all PNG files and sort them
-        image_files = sorted(image_dir.glob("frame_*.png"))
-
-        if not image_files:
-            print("No images found to create GIF")
-            return
-
-        # Load images
-        images = []
-        for img_path in image_files:
-            img = Image.open(img_path)
-            images.append(img)
-
-        # Save as GIF with proper disposal for transparency
-        if images:
-            images[0].save(
-                output_gif,
-                save_all=True,
-                append_images=images[1:],
-                duration=duration,
-                loop=loop,
-                optimize=True,
-                disposal=2  # Clear frame before rendering next frame
-            )
-            print(f"GIF animation saved: {output_gif}")
+        pass
 
     def _get_default_lighting_config(self):
         """Get default lighting configuration for uniform illumination."""
-        return {
-            'use_ambient': True,
-            'ambient_intensity': 0.2
-        }
+        pass
 
     def _setup_scene_lighting(self, lighting_config=None):
         """Setup scene lighting and return list of added light nodes."""
-        if lighting_config is None:
-            lighting_config = self._get_default_lighting_config()
-
-        added_lights = []
-
-        if lighting_config.get('use_ambient', True):
-            # Use uniform ambient lighting for shadowless rendering
-            ambient_intensity = lighting_config.get('ambient_intensity', 0.2)
-
-            # Set ambient light on the scene
-            self.scene.ambient_light = np.array([ambient_intensity,
-                                                 ambient_intensity,
-                                                 ambient_intensity])
-
-            # Add a single directional light for some definition
-            # Scale its intensity with ambient_intensity
-            light = pyrender.DirectionalLight(color=[1.0, 1.0, 1.0],
-                                              intensity=ambient_intensity * 2.0)
-            pose = np.eye(4)
-            # Point downward from above
-            pose[:3, :3] = transformations.euler_matrix(np.pi / 4, 0, 0)[:3, :3]
-            light_node = self.scene.add(light, pose=pose)
-            added_lights.append(light_node)
-        else:
-            # Use traditional point lights if specified
-            bounds = self.scene.bounds
-            center_z = (bounds[0][2] + bounds[1][2]) / 2
-
-            positions = lighting_config.get('positions', [])
-            colors = lighting_config.get('colors', [[1.0, 1.0, 1.0]] * len(positions))
-            intensity = lighting_config.get('intensity', 10.0)
-            distance_factors = lighting_config.get('distance_factors', [3] * len(positions))
-
-            for i, (pos_factor, color) in enumerate(zip(positions, colors)):
-                if isinstance(pos_factor, tuple):
-                    pos_factor, height_offset = pos_factor
-                else:
-                    height_offset = [0, 0, 1]
-
-                distance_factor = distance_factors[i] if i < len(distance_factors) else 3
-                pos = [pos_factor[0] * distance_factor, pos_factor[1] * distance_factor,
-                       center_z + height_offset[2] * distance_factor]
-
-                light = pyrender.PointLight(color=color, intensity=intensity)
-                pose = np.eye(4)
-                pose[:3, 3] = pos
-                light_node = self.scene.add(light, pose=pose)
-                added_lights.append(light_node)
-
-        return added_lights
+        pass
 
     def _cleanup_scene_lighting(self, light_nodes):
         """Remove lighting nodes from scene and reset ambient light."""
-        for light_node in light_nodes:
-            self.scene.remove_node(light_node)
-        # Reset ambient light to default
-        self.scene.ambient_light = np.array([0., 0., 0.])
+        pass
 
     def _update_scene_meshes(self):
         """Update scene meshes with latest transforms."""
-        for link_id, (node, link) in self._visual_mesh_map.items():
-            link.update(force=True)
-            transform = link.worldcoords().T()
-            if link.visual_mesh_changed:
-                mesh = link.concatenated_visual_mesh
-                always_on_top = getattr(link, '_always_on_top', False)
-                pyrender_mesh = _mesh_from_trimesh(
-                    mesh, smooth=False, always_on_top=always_on_top)
-                self.scene.remove_node(node)
-                node = self.scene.add(pyrender_mesh, pose=transform)
-                self._visual_mesh_map[link_id] = (node, link)
-                link._visual_mesh_changed = False
-            else:
-                node.matrix = transform
+        pass
 
     def _calculate_camera_distance(self, distance_margin=1.2):
         """Calculate optimal camera distance based on scene bounds."""
@@ -935,75 +644,8 @@ class PyrenderViewer(pyrender.Viewer):
 
     def _rebuild_scene_for_toggle(self):
         """Completely rebuild the scene with current mesh type for toggle functionality."""
-        if not self.enable_collision_toggle:
-            return
-
-        with self._render_lock:
-            # Clear all mesh nodes but preserve camera and lights
-            mesh_nodes_to_remove = []
-
-            for node in list(self.scene.nodes):
-                if node.camera is None and node.light is None and node.mesh is not None:
-                    mesh_nodes_to_remove.append(node)
-
-            # Remove mesh nodes
-            for node in mesh_nodes_to_remove:
-                self.scene.remove_node(node)
-
-            # Clear visual mesh map
-            self._visual_mesh_map.clear()
-
-            # Add meshes for current mode
-            for link in self._stored_links:
-                self._add_single_link_mesh_for_toggle(link)
+        pass
 
     def _add_single_link_mesh_for_toggle(self, link):
         """Add a single mesh (visual or collision) for a link during toggle."""
-        if not isinstance(link, model_module.Link):
-            return
-
-        link_id = str(id(link))
-        transform = link.worldcoords().T()
-
-        # Choose mesh based on current mode
-        if self.show_collision:
-            mesh = link.collision_mesh
-            # Process collision mesh with orange coloring
-            if mesh is not None:
-                if isinstance(mesh, list):
-                    colored_meshes = []
-                    for m in mesh:
-                        colored_mesh = m.copy()
-                        colored_mesh.visual.face_colors = [255, 150, 100, 200]
-                        colored_meshes.append(colored_mesh)
-                    if colored_meshes:
-                        mesh = trimesh.util.concatenate(colored_meshes)
-                    else:
-                        mesh = None
-                else:
-                    mesh = mesh.copy()
-                    mesh.visual.face_colors = [255, 150, 100, 200]
-        else:
-            mesh = link.concatenated_visual_mesh
-
-        if mesh is not None and len(mesh.vertices) > 0:
-            # Create pyrender mesh
-            pyrender_mesh = pyrender.Mesh.from_trimesh(mesh, smooth=False)
-
-            # Create node with transformation matrix
-            node = pyrender.Node(
-                name=f"{'collision' if self.show_collision else 'visual'}_{link.name}_{link_id}",
-                mesh=pyrender_mesh,
-                matrix=transform
-            )
-
-            # Add to scene
-            self.scene.add_node(node)
-
-            # Update visual mesh map for compatibility (only for visual meshes)
-            if not self.show_collision:
-                self._visual_mesh_map[link_id] = (node, link)
-
-        # Process child links
-        for child_link in link.child_links:
-            self._add_single_link_mesh_for_toggle(child_link)
+        pass

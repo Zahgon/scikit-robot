@@ -42,17 +42,17 @@ class Link(CascadedCoords):
 
     @property
     def parent_link(self):
-        return self._parent_link
+        pass
 
     @property
     def child_links(self):
-        return self._child_links
+        pass
 
     def add_joint(self, j):
         self.joint = j
 
     def delete_joint(self):
-        self.joint = None
+        pass
 
     def add_child_link(self, child_link):
         """Add child link."""
@@ -66,7 +66,7 @@ class Link(CascadedCoords):
         self._parent_link = parent_link
 
     def del_parent_link(self):
-        self._parent_link = None
+        pass
 
     @property
     def collision_mesh(self):
@@ -79,7 +79,7 @@ class Link(CascadedCoords):
             specified in the link frame,
             or None if there is not one.
         """
-        return self._collision_mesh
+        pass
 
     @collision_mesh.setter
     def collision_mesh(self, mesh):
@@ -92,15 +92,7 @@ class Link(CascadedCoords):
             specified in the link frame,
             or None if there is not one.
         """
-        if mesh is None or (isinstance(mesh, Sequence) and len(mesh) == 0):
-            self._collision_mesh = None
-            return
-        trimesh = _lazy_trimesh()
-        if mesh is not None and \
-           not isinstance(mesh, trimesh.base.Trimesh):
-            raise TypeError('input mesh is should be trimesh.base.Trimesh, '
-                            'get type {}'.format(type(mesh)))
-        self._collision_mesh = mesh
+        pass
 
     @property
     def visual_mesh(self):
@@ -112,7 +104,7 @@ class Link(CascadedCoords):
                             sequence of trimesh.Trimesh
             A set of visual meshes for the link in the link frame.
         """
-        return self._visual_mesh
+        pass
 
     @visual_mesh.setter
     def visual_mesh(self, mesh):
@@ -124,27 +116,7 @@ class Link(CascadedCoords):
                trimesh.points.PointCloud or str
             A set of visual meshes for the link in the link frame.
         """
-        if mesh is None or (isinstance(mesh, Sequence) and len(mesh) == 0):
-            self._visual_mesh = mesh
-            self._concatenated_visual_mesh = None
-            self._visual_mesh_changed = True
-            return
-        trimesh = _lazy_trimesh()
-        if not (isinstance(mesh, trimesh.Trimesh)
-                or (isinstance(mesh, Sequence)
-                    and all(isinstance(m, trimesh.Trimesh) for m in mesh))
-                or isinstance(mesh, trimesh.points.PointCloud)
-                or isinstance(mesh, trimesh.path.path.Path3D)
-                or isinstance(mesh, str)):
-            raise TypeError(
-                'mesh must be None, trimesh.Trimesh, sequence of '
-                'trimesh.Trimesh, trimesh.points.PointCloud '
-                'or path of mesh file, but got: {}'.format(type(mesh)))
-        if isinstance(mesh, str):
-            mesh = trimesh.load(mesh)
-        self._visual_mesh = mesh
-        self._concatenated_visual_mesh = trimesh.util.concatenate(mesh)
-        self._visual_mesh_changed = True
+        pass
 
     @property
     def visual_mesh_file_paths(self):
@@ -158,17 +130,7 @@ class Link(CascadedCoords):
         file_paths : list of str
             File paths of the visual meshes.
         """
-        if self._visual_mesh is None:
-            return []
-        meshes = self._visual_mesh
-        if not isinstance(meshes, Sequence):
-            meshes = [meshes]
-        paths = []
-        for m in meshes:
-            path = getattr(m, 'metadata', {}).get('file_path')
-            if path is not None:
-                paths.append(path)
-        return paths
+        pass
 
     @property
     def concatenated_visual_mesh(self):
@@ -179,37 +141,21 @@ class Link(CascadedCoords):
         self._concatenated_visual_mesh : None, trimesh.base.Trimesh
             A concatenated visual meshes for the link in the link frame.
         """
-        return self._concatenated_visual_mesh
+        pass
 
     @property
     def visual_mesh_changed(self):
-        return self._visual_mesh_changed
+        pass
 
     @property
     def colors(self):
-        if self._concatenated_visual_mesh is not None:
-            return self._concatenated_visual_mesh.visual.face_colors
-        else:
-            return None
+        pass
 
     def set_color(self, color):
-        mesh = self._concatenated_visual_mesh
-        if mesh is None:
-            return
-        color = np.array(color)
-        if color.ndim == 2:
-            mesh.visual.face_colors = color
-        else:
-            n_facet = len(mesh.visual.face_colors)
-            mesh.visual.face_colors = np.array([color] * n_facet)
-        self._visual_mesh_changed = True
+        pass
 
     def reset_color(self):
-        trimesh = _lazy_trimesh()
-        concat_mesh = trimesh.util.concatenate(self._visual_mesh)
-        self._concatenated_visual_mesh.visual.face_colors = \
-            concat_mesh.visual.face_colors
-        self._visual_mesh_changed = True
+        pass
 
     def set_alpha(self, alpha):
         """Set alpha (transparency) value for visual mesh.
@@ -219,13 +165,7 @@ class Link(CascadedCoords):
         alpha : float
             Alpha value between 0.0 (transparent) and 1.0 (opaque)
         """
-        mesh = self._concatenated_visual_mesh
-        if mesh is None:
-            return
-        alpha = np.clip(alpha, 0.0, 1.0)  # Ensure alpha is in valid range
-        # Update alpha channel (4th component) of all face colors
-        mesh.visual.face_colors[:, 3] = np.round(alpha * 255).astype(np.uint8)
-        self._visual_mesh_changed = True
+        pass
 
     @property
     def sdf(self):

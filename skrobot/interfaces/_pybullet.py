@@ -134,10 +134,7 @@ class PybulletRobotInterface(Coordinates):
         pose : skrobot.coordinates.Coordinates
             pose of this robot in the physics simulator.
         """
-        pos, q_xyzw = p.getBasePositionAndOrientation(
-            self.robot_id)
-        q_wxyz = xyzw2wxyz(q_xyzw)
-        return Coordinates(pos=pos, rot=q_wxyz)
+        pass
 
     def _reset_position_and_orientation(self):
         """Reset base position and orientation.
@@ -301,42 +298,13 @@ class PybulletRobotInterface(Coordinates):
         timeout : float
             maximum time of timeout.
         """
-        start = time.time()
-        while True:
-            p.stepSimulation()
-            wait = False
-            for idx in self.joint_ids:
-                if idx is None:
-                    continue
-                _, velocity, _, _ = p.getJointState(self.robot_id,
-                                                    idx)
-                if abs(velocity) > thresh:
-                    wait = True
-            if wait is False:
-                break
-            if time.time() - start > timeout:
-                return False
-        return True
+        pass
 
     def sync(self):
         """Synchronize pybullet pose to robot_model.
 
         """
-        if self.robot_id is None:
-            return self.angle_vector()
-
-        for idx, joint in zip(self.joint_ids, self.robot.joint_list):
-            if idx is None:
-                continue
-            joint_state = p.getJointState(self.robot_id,
-                                          idx)
-            joint.joint_angle(joint_state[0])
-        pos, orientation = p.getBasePositionAndOrientation(self.robot_id)
-        rpy, _ = quaternion2rpy([orientation[3], orientation[0],
-                                 orientation[1], orientation[2]])
-        self.robot.root_link.newcoords(np.array([rpy[0], rpy[1], rpy[2]]),
-                                       pos=pos)
-        return self.angle_vector()
+        pass
 
 
 remove_user_item_indices = []
@@ -350,42 +318,11 @@ def draw(c,
          color=[1, 1, 1, 1],
          radius=0.03,
          text=''):
-    global remove_user_item_indices
-    global remove_body_indices
-    _check_available()
-
-    if isinstance(c, np.ndarray):
-        visual_shape_id = p.createVisualShape(shapeType=p.GEOM_SPHERE,
-                                              rgbaColor=color,
-                                              radius=radius)
-        idx = p.createMultiBody(baseVisualShapeIndex=visual_shape_id,
-                                basePosition=c,
-                                useMaximalCoordinates=True)
-        remove_body_indices.append(idx)
-        return
-    coord = c.copy_worldcoords()
-    orientation = matrix2quaternion(coord.worldrot())
-    orientation = np.array([orientation[1],
-                            orientation[2],
-                            orientation[3],
-                            orientation[0]])
-    create_pose_marker(c.worldpos(),
-                       orientation,
-                       text=text,
-                       lineWidth=line_width,
-                       lineLength=line_length,
-                       parentLinkIndex=parent_link_index)
+    pass
 
 
 def flush():
-    global remove_user_item_indices
-    global remove_body_indices
-    _check_available()
-    for idx in remove_user_item_indices:
-        p.removeUserDebugItem(idx)
-    for idx in remove_body_indices:
-        p.removeBody(idx)
-    remove_user_item_indices = []
+    pass
 
 
 def create_pose_marker(position=np.array([0, 0, 0]),
@@ -409,28 +346,4 @@ def create_pose_marker(position=np.array([0, 0, 0]),
     with 3 colored lines.
 
     """
-    global remove_user_item_indices
-    _check_available()
-    pts = np.array([[0, 0, 0], [lineLength, 0, 0], [
-                   0, lineLength, 0], [0, 0, lineLength]])
-    rotIdentity = np.array([0, 0, 0, 1])
-    po, _ = p.multiplyTransforms(position, orientation, pts[0, :], rotIdentity)
-    px, _ = p.multiplyTransforms(position, orientation, pts[1, :], rotIdentity)
-    py, _ = p.multiplyTransforms(position, orientation, pts[2, :], rotIdentity)
-    pz, _ = p.multiplyTransforms(position, orientation, pts[3, :], rotIdentity)
-    idx = p.addUserDebugLine(po, px, xColor, lineWidth, lifeTime,
-                             parentObjectUniqueId, parentLinkIndex)
-    remove_user_item_indices.append(idx)
-    idx = p.addUserDebugLine(po, py, yColor, lineWidth, lifeTime,
-                             parentObjectUniqueId, parentLinkIndex)
-    remove_user_item_indices.append(idx)
-    idx = p.addUserDebugLine(po, pz, zColor, lineWidth, lifeTime,
-                             parentObjectUniqueId, parentLinkIndex)
-    remove_user_item_indices.append(idx)
-    if textOrientation is None:
-        textOrientation = orientation
-    idx = p.addUserDebugText(text, [0, 0, 0.1], textColorRGB=textColor,
-                             textSize=textSize,
-                             parentObjectUniqueId=parentObjectUniqueId,
-                             parentLinkIndex=parentLinkIndex)
-    remove_user_item_indices.append(idx)
+    pass

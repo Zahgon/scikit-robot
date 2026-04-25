@@ -164,21 +164,12 @@ def convert_legacy_axis_to_mask(axis):
 
 def warn_translation_axis_deprecated(stacklevel=2):
     """Emit deprecation warning for translation_axis parameter."""
-    warnings.warn(
-        "translation_axis is deprecated. Use position_mask instead. "
-        "Note: semantics are inverted - position_mask='z' means "
-        "constrain z only, while translation_axis='z' meant ignore z.",
-        DeprecationWarning, stacklevel=stacklevel + 1)
+    pass
 
 
 def warn_rotation_axis_deprecated(stacklevel=2):
     """Emit deprecation warning for rotation_axis parameter."""
-    warnings.warn(
-        "rotation_axis is deprecated. Use rotation_mask and "
-        "rotation_mirror instead. "
-        "Note: semantics are inverted - rotation_mask='yz' means "
-        "constrain y,z only, while rotation_axis='x' meant ignore x.",
-        DeprecationWarning, stacklevel=stacklevel + 1)
+    pass
 
 
 def is_mask_array(val):
@@ -194,12 +185,7 @@ def is_mask_array(val):
     bool
         True if val is a 3-element numpy array or list of numbers
     """
-    if isinstance(val, np.ndarray):
-        return val.ndim == 1 and len(val) == 3
-    if isinstance(val, list) and len(val) == 3:
-        return all(isinstance(x, (int, float, np.integer, np.floating))
-                   for x in val)
-    return False
+    pass
 
 
 def select_by_mask(vector, mask, mirror_axis=None):
@@ -349,11 +335,7 @@ def convert_to_axis_vector(axis):
 
 
 def _wrap_axis(axis):
-    warnings.warn(
-        'Function `_wrap_axis` is deprecated. '
-        'Please use `convert_to_axis_vector` instead',
-        DeprecationWarning)
-    return convert_to_axis_vector(axis)
+    pass
 
 
 def to_numpy_array(arr):
@@ -806,12 +788,7 @@ def midrot(p, r1, r2):
                    np.array([[0, 0, 1], [0, 1, 0], [-1, 0, 0]])))[0])
     array([ 0., 45.,  0.])
     """
-    warnings.warn(
-        'Function `midrot` is deprecated. '
-        'Please use `interpolate_rotation_matrices` instead',
-        DeprecationWarning,
-        stacklevel=2)
-    return interpolate_rotation_matrices(p, r1, r2)
+    pass
 
 
 def transform(m, v):
@@ -1497,12 +1474,7 @@ def matrix_log(m):
     >>> matrix_log(np.eye(3))
     array([0., 0., 0.])
     """
-    warnings.warn(
-        'Function `matrix_log` is deprecated. '
-        'Please use `rotation_matrix_to_axis_angle_vector` instead',
-        DeprecationWarning,
-        stacklevel=2)
-    return rotation_matrix_to_axis_angle_vector(m)
+    pass
 
 
 def axis_angle_vector_to_rotation_matrix(omega, p=1.0):
@@ -1578,12 +1550,7 @@ def matrix_exponent(omega, p=1.0):
            [ 0.        ,  0.54030231, -0.84147098],
            [ 0.        ,  0.84147098,  0.54030231]])
     """
-    warnings.warn(
-        'Function `matrix_exponent` is deprecated. '
-        'Please use `axis_angle_vector_to_rotation_matrix` instead',
-        DeprecationWarning,
-        stacklevel=2)
-    return axis_angle_vector_to_rotation_matrix(omega, p)
+    pass
 
 
 def skew_symmetric_matrix(v):
@@ -1683,13 +1650,7 @@ def outer_product_matrix(v):
            [ 3,  0, -1],
            [-2,  1,  0]])
     """
-    warnings.warn(
-        'Function `outer_product_matrix` is deprecated and incorrectly named. '
-        'It actually returns a skew-symmetric matrix, not an outer product matrix. '
-        'Please use `skew_symmetric_matrix` instead',
-        DeprecationWarning,
-        stacklevel=2)
-    return skew_symmetric_matrix(v)
+    pass
 
 
 def cross_product(a, b):
@@ -2375,7 +2336,7 @@ def quaternion_absolute_distance(q1, q2):
             [-1, 0, 0, 0],
             [0, 0.7071067811865476, 0, 0.7071067811865476])
     """
-    return quaternion_distance(q1, q2, True)
+    pass
 
 
 def quaternion_norm(q):
@@ -2519,18 +2480,7 @@ def axis_angle_from_quaternion(quat):
     >>> axis_angle_from_quaternion([0, 7.07106781e-01, 0, 7.07106781e-01])
     array([2.22144147, 0.        , 2.22144147])
     """
-    quat = np.array(quat, dtype=np.float64)
-    x, y, z, w = quat
-    sinang = y ** 2 + z ** 2 + w ** 2
-    if sinang == 0:
-        return np.array([0, 0, 0])
-    if x < 0:
-        _quat = - quat
-    else:
-        _quat = quat
-    sinang = np.sqrt(sinang)
-    f = 2.0 * np.arctan2(sinang, _quat[0]) / sinang
-    return f * np.array([_quat[1], _quat[2], _quat[3]])
+    pass
 
 
 def axis_angle_from_matrix(rotation):
@@ -2556,7 +2506,7 @@ def axis_angle_from_matrix(rotation):
         numpy.array([[0, 0, 1], [0, 1, 0], [-1, 0, 0]]))
     array([0.        , 1.57079633, 0.        ])
     """
-    return axis_angle_from_quaternion(quat_from_rotation_matrix(rotation))
+    pass
 
 
 def angle_between_vectors(v1, v2, normalize=True,
@@ -2660,7 +2610,7 @@ def is_parallel_two_vectors(v1, v2):
     parallel : bool
         parallel or not.
     """
-    return np.all(np.cross(v1, v2) == 0.0)
+    pass
 
 
 def random_rotation():

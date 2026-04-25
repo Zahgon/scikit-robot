@@ -111,21 +111,7 @@ class ManipulabilityEllipse:
         link : Link or None
             The target link, or None to disable.
         """
-        if link is None:
-            self._target_link = None
-            self.set_visibility(False)
-        else:
-            if link in self._link_list:
-                self._target_link = link
-                if self._mesh_handle is not None and self._visible:
-                    self._mesh_handle.visible = True
-            else:
-                warnings.warn(
-                    f"Link '{link.name}' not in link_list.",
-                    stacklevel=2
-                )
-                self._target_link = None
-                self.set_visibility(False)
+        pass
 
     def _compute_jacobian(self):
         """Compute the position Jacobian for the target link.
@@ -241,9 +227,7 @@ class ManipulabilityEllipse:
         color : tuple
             New color as (R, G, B).
         """
-        self._color = color
-        if self._mesh_handle is not None:
-            self._mesh_handle.color = color
+        pass
 
     def remove(self):
         """Removes the ellipsoid mesh from the Viser scene."""

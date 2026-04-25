@@ -269,56 +269,7 @@ def get_trajectory_optimization_callback():
 
     def trajectory_callback(xi):
         """Callback function for trajectory optimization visualization."""
-        # Increment iteration counter
-        context['iteration_count'] += 1
-
-        # Skip if not time to update
-        if context['iteration_count'] % update_every_n != 0:
-            return
-
-        try:
-            from skrobot.planner.utils import set_robot_config
-
-            # Reshape trajectory and get current best waypoint
-            n_dof = len(joint_list) + (3 if with_base else 0)
-            n_wp = len(xi) // n_dof
-            av_seq = xi.reshape(n_wp, n_dof)
-
-            # Debug output
-            if context.get('debug', False):
-                print("Iteration {}: n_wp={}, n_dof={}, av_seq shape={}".format(
-                    context['iteration_count'], n_wp, n_dof, av_seq.shape))
-
-            # Select waypoint based on visualization mode
-            waypoint_mode = context.get('waypoint_mode', 'goal')
-            if waypoint_mode == 'goal':
-                # Show final waypoint (goal) to see convergence to target
-                waypoint_idx = n_wp - 1
-            elif waypoint_mode == 'middle':
-                # Show middle waypoint to see trajectory evolution
-                waypoint_idx = n_wp // 2
-            elif waypoint_mode == 'cycle':
-                # Cycle through different waypoints
-                waypoint_idx = (context['iteration_count'] // update_every_n) % n_wp
-            else:
-                waypoint_idx = n_wp - 1  # Default to goal
-
-            if waypoint_idx < len(av_seq):
-                current_av = av_seq[waypoint_idx]
-                set_robot_config(robot_model, joint_list, current_av, with_base)
-
-                # Force update of robot mesh in viewer
-                if hasattr(viewer, 'update'):
-                    viewer.update()
-                viewer.redraw()
-
-                time.sleep(sleep_time)
-
-        except Exception as e:
-            # If visualization fails, don't break optimization but show error if debug
-            if context.get('debug', False):
-                print("Visualization error: {}".format(e))
-            pass
+        pass
 
     return trajectory_callback
 
@@ -377,10 +328,10 @@ def create_ik_visualization_hook(viewer, sleep_time=0.05, enabled=None):
         return []
 
     def redraw_hook():
-        viewer.redraw()
+        pass
 
     def sleep_hook():
-        time.sleep(sleep_time)
+        pass
 
     return [redraw_hook, sleep_hook]
 

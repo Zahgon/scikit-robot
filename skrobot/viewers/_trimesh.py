@@ -21,16 +21,7 @@ logger.setLevel(logging.ERROR)
 
 
 def _check_trimesh_version():
-    trimesh_version = tuple(map(int, trimesh.__version__.split('.')))
-    if (4, 6, 1) < trimesh_version < (4, 6, 6):
-        warnings.warn(
-            "\033[31m"
-            + "Trimesh version {} detected. ".format(trimesh.__version__)
-            + "Versions >= 4.6.1 and <= 4.6.5 may cause models to "
-            + "appear completely black."
-            + "\033[0m",
-            category=RuntimeWarning
-        )
+    pass
 
 
 def _redraw_all_windows():
@@ -163,24 +154,19 @@ class TrimeshSceneViewer(trimesh.viewer.SceneViewer):
         self._redraw = False
 
     def on_mouse_press(self, *args, **kwargs):
-        self._redraw = True
-        return super(TrimeshSceneViewer, self).on_mouse_press(*args, **kwargs)
+        pass
 
     def on_mouse_drag(self, *args, **kwargs):
-        self._redraw = True
-        return super(TrimeshSceneViewer, self).on_mouse_drag(*args, **kwargs)
+        pass
 
     def on_mouse_scroll(self, *args, **kwargs):
-        self._redraw = True
-        return super(TrimeshSceneViewer, self).on_mouse_scroll(*args, **kwargs)
+        pass
 
     def on_key_press(self, *args, **kwargs):
-        self._redraw = True
-        return super(TrimeshSceneViewer, self).on_key_press(*args, **kwargs)
+        pass
 
     def on_resize(self, *args, **kwargs):
-        self._redraw = True
-        return super(TrimeshSceneViewer, self).on_resize(*args, **kwargs)
+        pass
 
     def _add_link(self, link):
         assert isinstance(link, model_module.Link)
@@ -263,18 +249,13 @@ class TrimeshSceneViewer(trimesh.viewer.SceneViewer):
                 )
 
     def save_image(self, file_obj):
-        self.switch_to()
-        self.dispatch_events()
-        self.dispatch_event('on_draw')
-        self.flip()
-        return super(TrimeshSceneViewer, self).save_image(file_obj)
+        pass
 
     def on_close(self):
         """Handle window close event by setting is_active to False."""
-        self._is_active = False
-        super(TrimeshSceneViewer, self).on_close()
+        pass
 
     @property
     def is_active(self):
         """bool : `True` if the viewer is active, or `False` if it has been closed."""
-        return self._is_active
+        pass

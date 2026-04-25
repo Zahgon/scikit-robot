@@ -106,11 +106,11 @@ class Axis(Link):
 
     @property
     def axis_length(self):
-        return self._axis_length
+        pass
 
     @property
     def axis_radius(self):
-        return self._axis_radius
+        pass
 
     @classmethod
     def from_coords(cls, coords, **kwargs):
@@ -121,13 +121,7 @@ class Axis(Link):
 
     @classmethod
     def from_cascoords(cls, cascoords, **kwargs):
-        assert isinstance(cascoords, CascadedCoords)
-        link = cls(**kwargs)
-        link.parent = cascoords.worldcoords()
-        for cc in cascoords.descendants:
-            child_link = cls.from_cascoords(cc, **kwargs)
-            link.add_child_link(child_link)
-        return link
+        pass
 
 
 class Box(Link, SDFImplemented):
@@ -156,7 +150,7 @@ class Box(Link, SDFImplemented):
 
     @property
     def extents(self):
-        return self._extents
+        pass
 
 
 class CameraMarker(Link):
@@ -296,12 +290,12 @@ class Capsule(Link):
     @property
     def radius(self):
         """Return the radius of the capsule."""
-        return self._radius
+        pass
 
     @property
     def height(self):
         """Return the height of the cylindrical portion."""
-        return self._height
+        pass
 
 
 class Sphere(Link, SDFImplemented):
@@ -331,7 +325,7 @@ class Sphere(Link, SDFImplemented):
 
     @property
     def radius(self):
-        return self._radius
+        pass
 
 
 class Annulus(Link):

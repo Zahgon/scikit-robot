@@ -477,14 +477,7 @@ class URDFXMLRootLinkChanger:
         return xyz.tolist(), rpy.tolist()
 
     def _get_all_children_links(self, parent_link):
-        if parent_link is None:
-            return []
-        parent_link_name = parent_link.get('link')
-        for link_name, info in self.joint_tree.items():
-            if link_name == parent_link_name:
-                children_names = info['children']
-                children_links = [self.links[name] for name in children_names if name in self.links]
-                return children_links
+        pass
 
     def _get_all_children_joints(self, parent_joint):
         children_joints = []
@@ -515,15 +508,7 @@ class URDFXMLRootLinkChanger:
         return children_joints
 
     def _link_is_included_in_path(self, target_link, path):
-        if target_link is None:
-            return False
-        target_link_name = target_link.get('name')
-        for elem in path:
-            parent_link_name = elem[0]
-            child_link_name = elem[1]
-            if (target_link_name == parent_link_name) or (target_link_name == child_link_name):
-                return True
-        return False
+        pass
 
     def _joint_is_included_in_path(self, target_joint, path):
         if target_joint is None:

@@ -285,9 +285,7 @@ class Coordinates(object):
                [ 0.00000000e+00,  1.00000000e+00,  0.00000000e+00],
                [-1.00000000e+00,  0.00000000e+00,  2.22044605e-16]])
         """
-        if self._hook is not None:
-            self._hook()
-        return self._rotation
+        pass
 
     @property
     def rotation_matrix(self):
@@ -325,26 +323,7 @@ class Coordinates(object):
             rpy angle [yaw, pitch, roll] or
             quaternion [w, x, y, z] order
         """
-        rotation = np.array(rotation)
-        # Convert quaternions
-        if rotation.shape == (4,):
-            q = np.array([q for q in rotation])
-            if np.abs(np.linalg.norm(q) - 1.0) > 1e-3:
-                raise ValueError('Invalid quaternion. Must be '
-                                 'norm 1.0, get {}'.
-                                 format(np.linalg.norm(q)))
-            rotation = quaternion2matrix(q)
-        elif rotation.shape == (3,):
-            # Convert [yaw-pitch-roll] to rotation matrix
-            q = rpy2quaternion(rotation)
-            rotation = quaternion2matrix(q)
-
-        # Convert lists and tuples
-        if type(rotation) in (list, tuple):
-            rotation = np.array(rotation).astype(np.float32)
-
-        _check_valid_rotation(rotation)
-        self._rotation = rotation * 1.
+        pass
 
     @property
     def translation(self):
@@ -365,9 +344,7 @@ class Coordinates(object):
         >>> c.translation
         array([0.1, 0.2, 0.3])
         """
-        if self._hook is not None:
-            self._hook()
-        return self._translation
+        pass
 
     @property
     def translation_vector(self):
@@ -385,12 +362,12 @@ class Coordinates(object):
         --------
         translation : The original property (same as translation_vector)
         """
-        return self.translation
+        pass
 
     @translation_vector.setter
     def translation_vector(self, value):
         """Setter for translation_vector (updates translation)."""
-        self.translation = value
+        pass
 
     @translation.setter
     def translation(self, translation):
@@ -403,12 +380,7 @@ class Coordinates(object):
         translation : list or tuple or numpy.ndarray
             shape of (3,) translation vector
         """
-        # Convert lists to translation arrays
-        if type(translation) in (list, tuple) and len(translation) == 3:
-            translation = np.array([t for t in translation]).astype(np.float64)
-
-        _check_valid_translation(translation)
-        self._translation = translation.squeeze() * 1.
+        pass
 
     @property
     def name(self):
@@ -419,7 +391,7 @@ class Coordinates(object):
         self._name : str
             name of this coordinate
         """
-        return self._name
+        pass
 
     @name.setter
     def name(self, name):
@@ -430,10 +402,7 @@ class Coordinates(object):
         name : str
             name of this coordinate
         """
-        if not isinstance(name, str):
-            raise TypeError('name should be string, get {}'.
-                            format(type(name)))
-        self._name = name
+        pass
 
     @property
     def dimension(self):
@@ -444,7 +413,7 @@ class Coordinates(object):
         len(self.translation) : int
             dimension of this coordinate
         """
-        return len(self._translation)
+        pass
 
     @property
     def x_axis(self):
@@ -455,7 +424,7 @@ class Coordinates(object):
         axis : numpy.ndarray
             x axis.
         """
-        return np.array(self._rotation[:, 0].T, 'f')
+        pass
 
     @property
     def y_axis(self):
@@ -466,7 +435,7 @@ class Coordinates(object):
         axis : numpy.ndarray
             y axis.
         """
-        return np.array(self._rotation[:, 1].T, 'f')
+        pass
 
     @property
     def z_axis(self):
@@ -477,7 +446,7 @@ class Coordinates(object):
         axis : numpy.ndarray
             z axis.
         """
-        return np.array(self._rotation[:, 2].T, 'f')
+        pass
 
     def changed(self):
         """Return False
@@ -684,7 +653,7 @@ class Coordinates(object):
         >>> c.quaternion
         array([0.8236391 , 0.1545085 , 0.47552826, 0.26761657])
         """
-        return matrix2quaternion(self._rotation)
+        pass
 
     @property
     def quaternion_wxyz(self):
@@ -695,7 +664,7 @@ class Coordinates(object):
         q : numpy.ndarray
             [w, x, y, z] quaternion
         """
-        return matrix2quaternion(self._rotation)
+        pass
 
     @property
     def quaternion_xyzw(self):
@@ -717,7 +686,7 @@ class Coordinates(object):
         >>> c.quaternion_xyzw
         array([0.1545085 , 0.47552826, 0.26761657, 0.8236391 ])
         """
-        return wxyz2xyzw(matrix2quaternion(self._rotation))
+        pass
 
     def parent_orientation(self, v, wrt):
         if wrt == 'local' or wrt == self:
@@ -754,7 +723,7 @@ class Coordinates(object):
         return np.matmul(self._rotation, v)
 
     def inverse_rotate_vector(self, v):
-        return np.matmul(v, self._rotation)
+        pass
 
     def transform(self, c, wrt='local', out=None):
         """Transform this coordinates by coords based on wrt
@@ -817,9 +786,7 @@ class Coordinates(object):
         self.worldcoords() : skrobot.coordinates.Coordinates
             world coordinates.
         """
-        self.transform(
-            local_coords.transformation(target_coords), local_coords)
-        return self.worldcoords()
+        pass
 
     def rpy_angle(self):
         """Return a pair of rpy angles of this coordinates.
@@ -1097,15 +1064,7 @@ class Coordinates(object):
         wrt : str or skrobot.coordinates.Coordinates
             reference coordinates.
         """
-        _check_valid_rotation(rotation_matrix)
-        if wrt == 'local' or wrt == self:
-            self._rotation = self._rotation.dot(rotation_matrix)
-        elif wrt == 'world':
-            self._rotation = rotation_matrix
-        elif isinstance(wrt, Coordinates):
-            self._rotation = wrt.worldrot().dot(rotation_matrix)
-        else:
-            raise TypeError('wrt {} not supported'.format(wrt))
+        pass
 
     def align_axis_to_direction(self, direction, axis='z', wrt='world', eps=0.005):
         """Align the specified axis of this coordinate to point in the given direction.
@@ -1254,7 +1213,7 @@ class Coordinates(object):
         slerp : Spherical linear interpolation (constant angular velocity)
         interpolate : Alias for slerp
         """
-        return lerp_coordinates(self, other, ratio)
+        pass
 
     def interpolate(self, other, ratio):
         """Interpolate between this coordinate and another coordinate.
@@ -1359,7 +1318,7 @@ class Coordinates(object):
         >>> c.world_quaternion_wxyz()
         array([1., 0., 0., 0.])
         """
-        return matrix2quaternion(self.worldrot())
+        pass
 
     def world_quaternion_xyzw(self):
         """Return world quaternion in [x, y, z, w] format.
@@ -1376,7 +1335,7 @@ class Coordinates(object):
         >>> c.world_quaternion_xyzw()
         array([0., 0., 0., 1.])
         """
-        return wxyz2xyzw(matrix2quaternion(self.worldrot()))
+        pass
 
     def world_position_quaternion_wxyz(self):
         """Return world position and quaternion (wxyz).
@@ -1401,7 +1360,7 @@ class Coordinates(object):
         >>> quat
         array([1., 0., 0., 0.])
         """
-        return self.worldpos(), self.world_quaternion_wxyz()
+        pass
 
     def world_position_quaternion_xyzw(self):
         """Return world position and quaternion (xyzw).
@@ -1427,7 +1386,7 @@ class Coordinates(object):
         >>> quat
         array([0., 0., 0., 1.])
         """
-        return self.worldpos(), self.world_quaternion_xyzw()
+        pass
 
     def newcoords(self, c, pos=None, check_validity=True,
                   relative_coords=None):
@@ -2002,35 +1961,13 @@ class CascadedCoords(Coordinates):
         wrt : str or skrobot.coordinates.Coordinates
             reference coordinates.
         """
-        _check_valid_rotation(rotation_matrix)
-        if wrt == 'local' or wrt == self:
-            rotation = self._rotation.dot(rotation_matrix)
-        elif wrt == 'parent' or wrt == self.parent:
-            rotation = rotation_matrix
-        elif wrt == 'world':
-            # R_{input} = R_{world} = R_{parent} R_{this}
-            # R_{this} = R_{parent}^{-1} R_{input}
-            parent_worldcoords = self.parentcoords()
-            rotation = parent_worldcoords._rotation.T.dot(rotation_matrix)
-        elif isinstance(wrt, Coordinates):
-            # R_{world} = R_{wrt} R_{input}
-            # R_{world} = R_{parent} R_{this}
-            # R_{this} = R_{parent}^{-1} R_{world}
-            # R_{this} = R_{parent}^{-1} R_{world} R_{wrt} R_{input}
-            world_rotation_matrix = wrt.worldrot().dot(rotation_matrix)
-            parent_worldcoords = self.parentcoords()
-            rotation = parent_worldcoords._rotation.T.dot(
-                world_rotation_matrix)
-        else:
-            raise TypeError('wrt {} not supported'.format(wrt))
-        return self.newcoords(rotation, self._translation,
-                              check_validity=False, relative_coords='local')
+        pass
 
     def rotate_vector(self, v):
         return self.worldcoords().rotate_vector(v)
 
     def inverse_rotate_vector(self, v):
-        return self.worldcoords().inverse_rotate_vector(v)
+        pass
 
     def transform(self, c, wrt='local', out=None):
         """Transform this coordinates
@@ -2111,14 +2048,11 @@ class CascadedCoords(Coordinates):
 
     @property
     def parent(self):
-        return self._parent
+        pass
 
     @parent.setter
     def parent(self, c):
-        if not (c is None or coordinates_p(c)):
-            raise ValueError('parent should be None or Coordinates. '
-                             'get type=={}'.format(type(c)))
-        self._parent = c
+        pass
 
     def __getstate__(self):
         assert self._worldcoords._hook == self.update
@@ -2177,18 +2111,15 @@ def make_cascoords(*args, **kwargs):
 
 def random_coords():
     """Return Coordinates class has random translation and rotation"""
-    return Coordinates(pos=random_translation(),
-                       rot=random_rotation())
+    pass
 
 
 def wrt(coords, vec):
-    return coords.transform_vector(vec)
+    pass
 
 
 def coordinates_distance(c1, c2, c=None):
-    if c is None:
-        c = c1.transformation(c2)
-    return np.linalg.norm(c.worldpos()), rotation_distance(c.worldrot(), np.eye(3), check=False)
+    pass
 
 
 def slerp_coordinates(c1, c2, t):
@@ -2286,29 +2217,7 @@ def lerp_coordinates(c1, c2, t):
     >>> c_mid.translation
     array([1., 1., 1.])
     """
-    if not (0.0 <= t <= 1.0):
-        raise ValueError("Interpolation parameter t must be between 0.0 and 1.0")
-
-    # Linear interpolation for translation
-    pos1 = c1.worldpos()
-    pos2 = c2.worldpos()
-    interpolated_pos = pos1 + t * (pos2 - pos1)
-
-    # Linear interpolation for rotation using quaternions
-    q1 = c1.quaternion
-    q2 = c2.quaternion
-
-    # Ensure we take the shorter path
-    if np.dot(q1, q2) < 0:
-        q2 = -q2
-
-    # Linear interpolation of quaternions
-    lerp_q = (1 - t) * q1 + t * q2
-
-    lerp_q = lerp_q / np.linalg.norm(lerp_q)
-    interpolated_rot = quaternion2matrix(lerp_q)
-    result = Coordinates(pos=interpolated_pos, rot=interpolated_rot, check_validity=False)
-    return result
+    pass
 
 
 worldcoords = CascadedCoords(name='worldcoords')
